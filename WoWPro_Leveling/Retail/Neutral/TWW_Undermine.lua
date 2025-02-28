@@ -43,7 +43,7 @@ C Good Honest Work|QID|83143|QO|4|M|72.23,80.47|Z|2214; The Ringing Deeps|N|Cont
 T Good Honest Work|QID|83143|M|71.89,80.46|Z|2214; The Ringing Deeps|N|To Orweyna.|
 A Bloodletting|QID|83144|PRE|83143|M|71.89,80.46|Z|2214; The Ringing Deeps|N|From Unknown.|
 C Bloodletting|QID|83144|QO|1;2|M|69.97,81.88|Z|2214; The Ringing Deeps|N|Giant Gorewalker and Forming Pusglob slain.|S|
-C Bloodletting|QID|83144|QO|3|M|69.43,84.20|Z|2214; The Ringing Deeps|NC|N|Target attack on Pipeline Valve.|EAB|
+C Bloodletting|QID|83144|QO|3|M|70.11,81.78;69.96,82.41;69.19,82.96;69.56,84.20|CS|Z|2214; The Ringing Deeps|NC|N|Target attack on Pipeline Valve.|EAB|
 C Bloodletting|QID|83144|QO|1;2|M|69.97,81.88|Z|2214; The Ringing Deeps|N|Giant Gorewalker and Forming Pusglob slain.|US|
 T Bloodletting|QID|83144|M|69.54,84.12|Z|2214; The Ringing Deeps|N|To Orweyna.|
 A Into the Gutter|QID|84683|PRE|83144|M|69.55,84.19|Z|2214; The Ringing Deeps|N|From Pamsy.|
@@ -66,6 +66,21 @@ C Found Family|QID|85444|QO|2|M|68.68,90.25|Z|2214; The Ringing Deeps|N|Keets sa
 C Found Family|QID|85444|QO|1|M|70.24,92.39|Z|2214; The Ringing Deeps|N|Razi saved.|CHAT|
 C Found Family|QID|85444|QO|3|M|70.98,95.05|Z|2214; The Ringing Deeps|N|Glizza saved.|CHAT|
 C Bloody Business|QID|83147|QO|1|M|69.52,90.27|Z|2214; The Ringing Deeps|N|Kill Blood Monstrosities.|US|
+A Sanity's Rest|QID|86271|PRE|83146|M|68.43,96.45||Z|2214; The Ringing Deeps|N|From Benny Goosrocket.|RANK|2|
+C Sanity's Rest|QID|86271|QO|1|M|68.43,96.45|Z|2214; The Ringing Deeps|N|Pick up the incapacitated Miner.|NC|H|
+C Sanity's Rest|QID|86271|QO|2|M|67.61,96.99|Z|2214; The Ringing Deeps|N|Use the Extra Action Button in the glowing Ring.|NC|EAB|
+T Sanity's Rest|QID|86271|M|70.51,88.73|Z|2214; The Ringing Deeps|N|To Stichloaf.|
+A Counteracting The Black Blood|QID|86272|PRE|86271|M|70.51,88.73|Z|2214; The Ringing Deeps|N|From Stichloaf.|RANK|2|
+C Counteracting The Black Blood|QID|86272|QO|1|M|70.51,88.73|Z|2214; The Ringing Deeps|N|Click on the glowing objects nerby.|NC|H|
+C Counteracting The Black Blood|QID|86272|QO|2|M|70.51,88.73|Z|2214; The Ringing Deeps|N|Click on the pot.|NC|H|
+C Counteracting The Black Blood|QID|86272|QO|3|M|70.51,88.73|Z|2214; The Ringing Deeps|N|Run around and try to hit the Icapacitated Minters with the Green spray. It can take several attempts to hit miners and get credit so just keep running between the groups.|
+T Counteracting The Black Blood|QID|86272|M|70.51,88.73|Z|2214; The Ringing Deeps|N|To Stichloaf.|
+A Visit To The Shop|QID|86273|PRE|86272|M|70.51,88.73|Z|2214; The Ringing Deeps|N|From Stichloaf.|RANK|2|
+T Visit To The Shop|QID|86273|M|67.28,98.12|Z|2214; The Ringing Deeps|N|To Trixxie Boltcrank.|
+A Automation Solution|QID|86274|PRE|86273|M|67.28,98.12|Z|2214; The Ringing Deeps|N|From Trixxie Boltcrank.|RANK|2|
+A Bug Exterminator Needed|QID|86275|PRE|86273|M|67.28,98.12|Z|2214; The Ringing Deeps|N|From Trixxie Boltcrank.|RANK|2|
+C Automation Solution|QID|86274|M|67.06, 97.07|Z|2214; The Ringing Deeps|N|Click on the cogs lying about.|H|
+A Bug Exterminator Needed|QID|86275|M|67.06, 97.07|Z|2214; The Ringing Deeps|N|Kill the Bloodfeasters.|
 T Found Family|QID|85444|M|70.51,88.73|Z|2214; The Ringing Deeps|N|To Monte Gazlowe.|
 T Bloody Business|QID|83147|M|70.56,88.67|Z|2214; The Ringing Deeps|N|To Orweyna.|
 A X-Treme Chill|QID|83148|PRE|85444&83147|M|70.52,88.74|Z|2214; The Ringing Deeps|N|From Monte Gazlowe.|
