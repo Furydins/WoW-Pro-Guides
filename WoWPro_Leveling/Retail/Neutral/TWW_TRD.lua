@@ -253,11 +253,11 @@ A Glintwick the Gem Grabber|QID|80407|PRE|80405|M|39.96,40.12|Z|2214; The Ringin
 C Seeking Ausgazur's Gems|QID|80406|M|40.40,45.29|QO|1|Z|2214; The Ringing Deeps|N|Gem of Ausgazur.|S|
 K Glintwick|ACTIVE|80407|M|40.40,46.56|QO|1|Z|2214; The Ringing Deeps|N|Kill Glintwick and collect the final gem.|T|Glintwick|
 C Seeking Ausgazur's Gems|QID|80406|M|40.40,45.29|QO|1|Z|2214; The Ringing Deeps|N|Gem of Ausgazur.|US|
-T Seeking Ausgazur's Gems|QID|80406|M|44.08,40.14|Z|2214; The Ringing Deeps|N|To Batzvara.If you choose to do so, Finish the bonus objective before you head back.|
-T Glintwick the Gem Grabber|QID|80407|M|44.08,40.14|Z|2214; The Ringing Deeps|N|To Batzvara.|
-T An Opportunity to Relax|QID|82952|M|53.78,43.87|Z|2214; The Ringing Deeps|N|To Mindi Maxlof.|
-A To Opportunity Point|QID|82956|PRE|82952|M|53.78,43.87|Z|2214; The Ringing Deeps|N|From Mindi Maxlof.|
-R Skolzgal Mill|ACTIVE|81999|M|53.38,44.58|Z|2214; The Ringing Deeps|N|Use the pillerstone spire elevator or otherwise make your way to Cinderwold.|
+T Seeking Ausgazur's Gems|QID|80406|M|39.94,40.14|Z|2214; The Ringing Deeps|N|To Batzvara.If you choose to do so, Finish the bonus objective before you head back.|
+T Glintwick the Gem Grabber|QID|80407|M|39.94,40.14|Z|2214; The Ringing Deeps|N|To Batzvara.|
+T An Opportunity to Relax|QID|82952|M|49.66,43.87|Z|2214; The Ringing Deeps|N|To Mindi Maxlof.|
+A To Opportunity Point|QID|82956|PRE|82952|M|49.66,43.87|Z|2214; The Ringing Deeps|N|From Mindi Maxlof.|
+R Skolzgal Mill|ACTIVE|81999|M|49.27,44.58|Z|2214; The Ringing Deeps|N|Use the pillerstone spire elevator or otherwise make your way to Cinderwold.|
 R Cinderwold|ACTIVE|81999|M|72.14,42.10|Z|2248; Isle of Dorn|N|Use the pillerstone spire elevator or otherwise make your way to Cinderwold.|
 C New Home, New Candle!|QID|81999|M|72.14,42.10|QO|1|Z|2248; Isle of Dorn|N|Meet Janky in the Cinderwold.|H|
 T New Home, New Candle!|QID|81999|M|72.09,42.04|Z|2248; Isle of Dorn|N|To Janky.|
@@ -278,17 +278,17 @@ T Hot Pollenate-o|QID|80202|M|72.07,42.09|Z|2248; Isle of Dorn|N|To Janky.|
 T Beebiter|QID|80000|M|72.07,42.09|Z|2248; Isle of Dorn|N|To Janky.|
 A Janky Candles|QID|79565|PRE|80000&80202|M|72.07,42.09|Z|2248; Isle of Dorn|N|From Janky.|RANK|2|
 R Skolzgal Mill|ACTIVE|79565|M|67.34,31.04|Z|2248; Isle of Dorn|N|Return to the elevator or otherwise travel back to The Ringing Deeps.|TZ|Ringing Deeps.|
-C Janky Candles|QID|79565|M|47.48,32.54|QO|1|CHAT|Z|2214; The Ringing Deeps|N|Ask Bosh if he has the parts Janky needs.|
-C Janky Candles|QID|79565|M|48.00,32.17|QO|2|CHAT|Z|2214; The Ringing Deeps|N|Speak with Innkeeper Brax about Bosh's tab.|
-C Janky Candles|QID|79565|M|47.58,31.61|QO|3|CHAT|Z|2214; The Ringing Deeps|N|Speak with Foreman Shalea about the construction.|
-C Janky Candles|QID|79565|M|47.67,32.93|QO|4|CHAT|Z|2214; The Ringing Deeps|N|Speak to Machinist Valyka about the tools.|
-C Janky Candles|QID|79565|M|47.42,28.31|QO|5|CHAT|Z|2214; The Ringing Deeps|N|Speak to Foreman Svart about the coal shipment.|
-C Janky Candles|QID|79565|M|47.68,27.19|QO|6|Z|2214; The Ringing Deeps|N|Use force if necesari to convince the coal to be fuel.|H|
-C Janky Candles|QID|79565|M|47.67,32.93|QO|7|Z|2214; The Ringing Deeps|N|Coal deliverd to Valyka.|CHAT|
-C Janky Candles|QID|79565|M|47.58,31.61|QO|8|Z|2214; The Ringing Deeps|N|Order delivered to Shalea.|CHAT|
-C Janky Candles|QID|79565|M|48.00,32.17|QO|9|Z|2214; The Ringing Deeps|N|Promise passed to Brax.|CHAT|
-C Janky Candles|QID|79565|M|47.48,32.54|QO|10|Z|2214; The Ringing Deeps|N|News brought to Bosh.|CHAT|
-T Janky Candles|QID|79565|M|47.56,33.37|Z|2214; The Ringing Deeps|N|To Janky.|
+C Janky Candles|QID|79565|M|43.30,32.54|QO|1|CHAT|Z|2214; The Ringing Deeps|N|Ask Bosh if he has the parts Janky needs.|
+C Janky Candles|QID|79565|M|43.80,32.17|QO|2|CHAT|Z|2214; The Ringing Deeps|N|Speak with Innkeeper Brax about Bosh's tab.|
+C Janky Candles|QID|79565|M|43.40,31.61|QO|3|CHAT|Z|2214; The Ringing Deeps|N|Speak with Foreman Shalea about the construction.|
+C Janky Candles|QID|79565|M|43.51,32.93|QO|4|CHAT|Z|2214; The Ringing Deeps|N|Speak to Machinist Valyka about the tools.|
+C Janky Candles|QID|79565|M|43.30,28.31|QO|5|CHAT|Z|2214; The Ringing Deeps|N|Speak to Foreman Svart about the coal shipment.|
+C Janky Candles|QID|79565|M|43.81,27.54|QO|6|Z|2214; The Ringing Deeps|N|Use force if necesary to convince the coal to be fuel.|H|
+C Janky Candles|QID|79565|M|43.51,32.93|QO|7|Z|2214; The Ringing Deeps|N|Coal deliverd to Valyka.|CHAT|
+C Janky Candles|QID|79565|M|43.40,31.61|QO|8|Z|2214; The Ringing Deeps|N|Order delivered to Shalea.|CHAT|
+C Janky Candles|QID|79565|M|43.80,32.17|QO|9|Z|2214; The Ringing Deeps|N|Promise passed to Brax.|CHAT|
+C Janky Candles|QID|79565|M|43.30,32.54|QO|10|Z|2214; The Ringing Deeps|N|News brought to Bosh.|CHAT|
+T Janky Candles|QID|79565|M|43.41,33.37|Z|2214; The Ringing Deeps|N|To Janky.|
 T Home Is Where the Candle Is|QID|79683|M|47.15,34.13|Z|2214; The Ringing Deeps|N|To Skitter.|
 C The Tunnel's End|QID|78685|M|60.31,60.15|QO|1|Z|2214; The Ringing Deeps|N|Find Magni and Dagran near Taelloch.|H|
 T The Tunnel's End|QID|78685|M|60.35,59.82|Z|2214; The Ringing Deeps|N|To Magni Bronzebeard.|
