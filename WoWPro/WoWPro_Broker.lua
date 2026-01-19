@@ -1487,42 +1487,43 @@ if step then
                 currentRow.itemcooldown.ActiveItem = nil
                 if not _G.InCombatLockdown() then
                     currentRow.itembutton:Show()
+
+                    currentRow.itemicon.currentTexture = nil
+                    currentRow.itembutton:SetAttribute("type1", "item")
+                    currentRow.itembutton:SetAttribute("item1", "item:".._use)
+                    currentRow.itembutton:SetScript("OnUpdate", function()
+                        local itemtexture = WoWPro.C_Item_GetItemIconByID(_use)
+                        local start, duration, enabled = _G.WoWPro.GetItemCooldown(_use)
+                        if not start then
+                            WoWPro:dbp("RowUpdate(): U¦%s/%s¦ has bad GetItemCooldown()", use, _use)
+                        end
+                        if _G.WoWPro.C_Item_GetItemCount(_use) > 0 and not currentRow.itemicon.item_IsVisible then
+                            currentRow.itemicon.item_IsVisible = true
+                            currentRow.itemicon:SetTexture(itemtexture)
+                            currentRow.itemicon.currentTexture = itemtexture
+                        elseif itemtexture ~= currentRow.itemicon.currentTexture and _G.WoWPro.C_Item_GetItemCount(_use) > 0 and currentRow.itemicon.item_IsVisible then
+                            currentRow.itemicon:SetTexture(itemtexture)
+                            currentRow.itemicon.currentTexture = itemtexture
+                        elseif _G.WoWPro.C_Item_GetItemCount(_use) == 0 and  currentRow.itemicon.item_IsVisible then
+                            currentRow.itemicon.item_IsVisible = false
+                            currentRow.itemicon:SetTexture()
+                            currentRow.itemicon.currentTexture = nil
+                        end
+                        if enabled and duration > 0 and not currentRow.itemcooldown.OnCooldown then
+                            currentRow.itemcooldown:Show()
+                            currentRow.itemcooldown:SetCooldown(start, duration)
+                            currentRow.itemcooldown.OnCooldown = true
+                            currentRow.itemcooldown.ActiveItem = _use
+                        elseif currentRow.itemcooldown.OnCooldown and duration == 0 then
+                            currentRow.itemcooldown:Hide()
+                            currentRow.itemcooldown.OnCooldown = false
+                        elseif currentRow.itemcooldown.ActiveItem ~= _use and start then
+                            currentRow.itemcooldown.OnCooldown = false
+                            currentRow.itemcooldown:SetCooldown(start, duration)
+                            currentRow.itemcooldown.ActiveItem = _use
+                        end
+                    end)
                 end
-                currentRow.itemicon.currentTexture = nil
-                currentRow.itembutton:SetAttribute("type1", "item")
-                currentRow.itembutton:SetAttribute("item1", "item:".._use)
-                currentRow.itembutton:SetScript("OnUpdate", function()
-                    local itemtexture = WoWPro.C_Item_GetItemIconByID(_use)
-                    local start, duration, enabled = _G.WoWPro.GetItemCooldown(_use)
-                    if not start then
-                        WoWPro:dbp("RowUpdate(): U¦%s/%s¦ has bad GetItemCooldown()", use, _use)
-                    end
-                    if _G.WoWPro.C_Item_GetItemCount(_use) > 0 and not currentRow.itemicon.item_IsVisible then
-                        currentRow.itemicon.item_IsVisible = true
-                        currentRow.itemicon:SetTexture(itemtexture)
-                        currentRow.itemicon.currentTexture = itemtexture
-                    elseif itemtexture ~= currentRow.itemicon.currentTexture and _G.WoWPro.C_Item_GetItemCount(_use) > 0 and currentRow.itemicon.item_IsVisible then
-                        currentRow.itemicon:SetTexture(itemtexture)
-                        currentRow.itemicon.currentTexture = itemtexture
-                    elseif _G.WoWPro.C_Item_GetItemCount(_use) == 0 and  currentRow.itemicon.item_IsVisible then
-                        currentRow.itemicon.item_IsVisible = false
-                        currentRow.itemicon:SetTexture()
-                        currentRow.itemicon.currentTexture = nil
-                    end
-                    if enabled and duration > 0 and not currentRow.itemcooldown.OnCooldown then
-                        currentRow.itemcooldown:Show()
-                        currentRow.itemcooldown:SetCooldown(start, duration)
-                        currentRow.itemcooldown.OnCooldown = true
-                        currentRow.itemcooldown.ActiveItem = _use
-                    elseif currentRow.itemcooldown.OnCooldown and duration == 0 then
-                        currentRow.itemcooldown:Hide()
-                        currentRow.itemcooldown.OnCooldown = false
-                    elseif currentRow.itemcooldown.ActiveItem ~= _use and start then
-                        currentRow.itemcooldown.OnCooldown = false
-                        currentRow.itemcooldown:SetCooldown(start, duration)
-                        currentRow.itemcooldown.ActiveItem = _use
-                    end
-                end)
             end
 
 			if not _G.InCombatLockdown() then
@@ -1667,25 +1668,25 @@ if step then
             currentRow.eaicon.EAB1_IsVisible = nil
             currentRow.eaicon.currentTexture = nil
             currentRow.eabutton:SetScript("OnUpdate", function()
-                local eabIcon = nil
-                if _G.ExtraActionButton1 and _G.ExtraActionButton1.icon then
-                    eabIcon = _G.ExtraActionButton1.icon
-                elseif _G.ExtraActionButton1Icon then
-                    eabIcon = _G.ExtraActionButton1Icon
-                end
-                local eabtexture = eabIcon and eabIcon:GetTexture() or nil
-                if _G.HasExtraActionBar() ~= currentRow.eaicon.EAB1_IsVisible then
-                    currentRow.eaicon.EAB1_IsVisible =  _G.HasExtraActionBar()
-                    if currentRow.eaicon.EAB1_IsVisible then
-                        currentRow.eaicon:SetTexture(eabtexture)
-                        currentRow.eaicon.currentTexture = eabtexture
-                    else
-                        currentRow.eaicon:SetTexture()
-                        currentRow.eaicon.currentTexture = nil
+                    local eabIcon = nil
+                    if _G.ExtraActionButton1 and _G.ExtraActionButton1.icon then
+                        eabIcon = _G.ExtraActionButton1.icon
+                    elseif _G.ExtraActionButton1Icon then
+                        eabIcon = _G.ExtraActionButton1Icon
                     end
-                elseif eabtexture ~= currentRow.eaicon.currentTexture and _G.HasExtraActionBar() and currentRow.eaicon.EAB1_IsVisible then
-                    currentRow.eaicon.currentTexture = eabtexture
-                    currentRow.eaicon:SetTexture(eabtexture)
+                    local eabtexture = eabIcon and eabIcon:GetTexture() or nil
+                    if _G.HasExtraActionBar() ~= currentRow.eaicon.EAB1_IsVisible then
+                        currentRow.eaicon.EAB1_IsVisible =  _G.HasExtraActionBar()
+                        if currentRow.eaicon.EAB1_IsVisible then
+                            currentRow.eaicon:SetTexture(eabtexture)
+                            currentRow.eaicon.currentTexture = eabtexture
+                        else
+                            currentRow.eaicon:SetTexture()
+                            currentRow.eaicon.currentTexture = nil
+                        end
+                    elseif eabtexture ~= currentRow.eaicon.currentTexture and _G.HasExtraActionBar() and currentRow.eaicon.EAB1_IsVisible then
+                        currentRow.eaicon.currentTexture = eabtexture
+                        currentRow.eaicon:SetTexture(eabtexture)
                 end
             end)
 
