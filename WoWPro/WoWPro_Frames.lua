@@ -28,7 +28,7 @@ function WoWPro:MinimapSet()
             if _G.InCombatLockdown() then C_Timer.After(1, tryRegister); return end
             if not _G.Minimap or not _G.Minimap:IsVisible() then C_Timer.After(1, tryRegister); return end
             if not icon.objects or not icon.objects["WoWProIcon"] then
-                icon:Register("WoWProIcon", WoWPro.MinimapIcon, WoWProDB.profile.minimap)
+                icon:Register("WoWProIcon", WoWPro.MinimapButton, WoWProDB.profile.minimap)
             else
                 icon:Show("WoWProIcon")
             end
@@ -1029,22 +1029,51 @@ end
 function WoWPro:SetAnchorToCorner(corner)
     if _G.InCombatLockdown() then return end
     local ui = _G.UIParent
-    local left = WoWPro.MainFrame:GetLeft()
-    local right = WoWPro.MainFrame:GetRight()
-    local top = WoWPro.MainFrame:GetTop()
-    local bottom = WoWPro.MainFrame:GetBottom()
-    local w = ui:GetWidth()
+    local w, h = ui:GetWidth(), ui:GetHeight()
+    local left = WoWPro.MainFrame:GetLeft() or 0
+    local right = WoWPro.MainFrame:GetRight() or w
+    local top = WoWPro.MainFrame:GetTop() or h
+    local bottom = WoWPro.MainFrame:GetBottom() or 0
+    local frameW = WoWPro.MainFrame:GetWidth() or 200
+    local frameH = WoWPro.MainFrame:GetHeight() or 300
 
-    WoWPro.MainFrame:ClearAllPoints()
-    if corner == "TOPLEFT" then
-        WoWPro.MainFrame:SetPoint("TOPLEFT", ui, "BOTTOMLEFT", left, top)
-    elseif corner == "TOPRIGHT" then
-        WoWPro.MainFrame:SetPoint("TOPRIGHT", ui, "BOTTOMRIGHT", right - w, top)
-    elseif corner == "BOTTOMLEFT" then
-        WoWPro.MainFrame:SetPoint("BOTTOMLEFT", ui, "BOTTOMLEFT", left, bottom)
-    elseif corner == "BOTTOMRIGHT" then
-        WoWPro.MainFrame:SetPoint("BOTTOMRIGHT", ui, "BOTTOMRIGHT", right - w, bottom)
+    -- Get the current anchor
+    local oldCorner = WoWProDB.profile.anchorCorner or "TOPLEFT"
+    local anchorX, anchorY
+    if oldCorner == "TOPLEFT" then
+        anchorX, anchorY = left, top
+    elseif oldCorner == "TOPRIGHT" then
+        anchorX, anchorY = right, top
+    elseif oldCorner == "BOTTOMLEFT" then
+        anchorX, anchorY = left, bottom
+    elseif oldCorner == "BOTTOMRIGHT" then
+        anchorX, anchorY = right, bottom
     end
+
+    -- Calculate new offsets so the window stays visually in the same place
+    local x, y
+    if corner == "TOPLEFT" then
+        x = anchorX
+        y = anchorY
+        WoWPro.MainFrame:ClearAllPoints()
+        WoWPro.MainFrame:SetPoint("TOPLEFT", ui, "BOTTOMLEFT", x, y)
+    elseif corner == "TOPRIGHT" then
+        x = anchorX - frameW
+        y = anchorY
+        WoWPro.MainFrame:ClearAllPoints()
+        WoWPro.MainFrame:SetPoint("TOPRIGHT", ui, "BOTTOMLEFT", x + frameW, y)
+    elseif corner == "BOTTOMLEFT" then
+        x = anchorX
+        y = anchorY - frameH
+        WoWPro.MainFrame:ClearAllPoints()
+        WoWPro.MainFrame:SetPoint("BOTTOMLEFT", ui, "BOTTOMLEFT", x, y + frameH)
+    elseif corner == "BOTTOMRIGHT" then
+        x = anchorX - frameW
+        y = anchorY - frameH
+        WoWPro.MainFrame:ClearAllPoints()
+        WoWPro.MainFrame:SetPoint("BOTTOMRIGHT", ui, "BOTTOMLEFT", x + frameW, y + frameH)
+    end
+
     -- Update side preference based on horizontal anchor
     WoWProDB.profile.leftside = (corner == "TOPLEFT" or corner == "BOTTOMLEFT")
     -- Persist the anchor corner choice
