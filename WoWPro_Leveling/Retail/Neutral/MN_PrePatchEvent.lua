@@ -10,7 +10,7 @@ WoWPro:GuideSteps(guide, function()
 return [[
 ; ALliance start
 A The Cult Within|QID|90759|Z|2339; Dornogal|N|From Ui Alert. If it does not appear check the Adventure Guide.|FACTION|ALLIANCE|
-R Stormwind|ACTIVE|92405|M|41.29,27.45|Z|2339; Dornogal|N|Make your way to Stormwind by any means.|FACTION|ALLIANCE|
+R Stormwind|ACTIVE|90759|M|41.29,27.45|Z|2339; Dornogal|N|Make your way to Stormwind by any means.|FACTION|ALLIANCE|
 T The Cult Within|QID|90759|M|71.80,60.19|Z|84|N|To Magister Umbric.|FACTION|ALLIANCE|
 A Avoiding Blame|QID|90760|PRE|90759|M|71.80,60.19|Z|84|N|From Magister Umbric|FACTION|ALLIANCE|
 C Avoiding Blame|QID|90760|M|76.70,60.14|Z|84|QO|1|NC|N|Speak to the glowing NPCs and accuse them of being cultists.|FACTION|ALLIANCE|
@@ -21,7 +21,7 @@ T The Twilight Highlands|QID|90762|M|49.89,80.66|Z|241|N|To Grand Magister Romma
 
 ; Horde Start
 A The Cult Within|QID|90764|Z|2339; Dornogal|N|From Ui Alert. If it does not appear check the Adventure Guide.|FACTION|HORDE|
-R Orgrimmar|ACTIVE|92405|M|41.29,27.45|Z|2339; Dornogal|N|Make your way to Orgrimmar by any means.|FACTION|HORDE|
+R Orgrimmar|ACTIVE|90764|M|41.29,27.45|Z|2339; Dornogal|N|Make your way to Orgrimmar by any means.|FACTION|HORDE|
 T The Cult Within|QID|90764|M|42.04,60.49|Z|85|N|To Grand Magister Rommath.|FACTION|HORDE|
 A Avoiding Blame|QID|90761|PRE|90764|M|42.04,60.49|Z|85|N|From Grand Magister Rommath.|FACTION|HORDE|
 C Avoiding Blame|QID|90761|M|62.04,51.24|Z|86|QO|1|NC|N|Speak to the glowing NPCs and accuse them of being cultists.|FACTION|HORDE|
