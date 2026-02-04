@@ -1504,6 +1504,25 @@ end
 -- Guide Frame --
 function WoWPro:CreateGuideFrame()
     WoWPro.GuideFrame = _G.CreateFrame("Frame", "WoWPro.GuideFrame", WoWPro.MainFrame)
+    WoWPro.GuideFrame:EnableMouse(true)
+    WoWPro.GuideFrame:SetScript("OnMouseDown", function(this, button)
+        if button == "LeftButton" and WoWProDB.profile.drag then
+            WoWPro.InhibitAnchorRestore = true
+            WoWPro:StartMoveClamp()
+            WoWPro.MainFrame:StartMoving()
+        elseif button == "RightButton" then
+            WoWPro.EasyMenu(WoWPro.DropdownMenu, this, "cursor", 0 , 0, "MENU");
+        end
+    end)
+    WoWPro.GuideFrame:SetScript("OnMouseUp", function(this, button)
+        if button == "LeftButton" and WoWProDB.profile.drag then
+            WoWPro.MainFrame:StopMovingOrSizing()
+            WoWPro.MainFrame:SetUserPlaced(false)
+            WoWPro:StopMoveClamp()
+            WoWPro.AnchorStore("OnMouseUpGuide")
+            WoWPro.InhibitAnchorRestore = false
+        end
+    end)
 end
 
 -- Scrollbar --
@@ -1553,6 +1572,23 @@ function WoWPro:CreateRows()
         row:SetPoint("RIGHT")
         row:SetHeight(25)
         row:RegisterForClicks("AnyUp");
+        row:RegisterForDrag("LeftButton")
+        row:SetScript("OnDragStart", function()
+            if WoWProDB.profile.drag then
+                WoWPro.InhibitAnchorRestore = true
+                WoWPro:StartMoveClamp()
+                WoWPro.MainFrame:StartMoving()
+            end
+        end)
+        row:SetScript("OnDragStop", function()
+            if WoWProDB.profile.drag then
+                WoWPro.MainFrame:StopMovingOrSizing()
+                WoWPro.MainFrame:SetUserPlaced(false)
+                WoWPro:StopMoveClamp()
+                WoWPro.AnchorStore("OnDragStopRow")
+                WoWPro.InhibitAnchorRestore = false
+            end
+        end)
 
         row.check = WoWPro:CreateCheck(row)
         row.check:SetScript("OnEnter", function(this)
