@@ -167,6 +167,8 @@ end
 
 -- Keep button bar fully visible; adjust frame down if needed
 function WoWPro:ClampBarsOnScreen()
+    -- Don't clamp during manual resize operations
+    if WoWPro.InhibitReanchor or WoWPro.InhibitClampBars then return end
     if not WoWPro.ButtonBar or not WoWPro.ButtonBar:IsShown() then return end
     local ui = _G.UIParent
     local uiTop = ui and ui:GetTop() or (ui and ui:GetHeight())
@@ -472,10 +474,10 @@ function WoWPro.RowSizeSet()
     local totalh, maxh = 0, WoWPro.GuideFrame:GetHeight()
     WoWPro.ActiveStickyCount = WoWPro.ActiveStickyCount or 0
 
-    -- Get current anchor corner (default to TOPLEFT if not set)
-    local anchorCorner = WoWProDB.profile.anchorCorner or "TOPLEFT"
+    -- Get current expansion anchor (default to TOPLEFT if not set)
+    local expansionAnchor = WoWProDB.profile.expansionAnchor or "TOPLEFT"
 
-    -- Calculate screen-limited bounds based on anchor corner
+    -- Calculate screen-limited bounds based on expansion anchor
     local ui = _G.UIParent
     local screenW = ui:GetWidth()
     local left = WoWPro.MainFrame:GetLeft() or 0
@@ -484,25 +486,25 @@ function WoWPro.RowSizeSet()
     local bottom = WoWPro.MainFrame:GetBottom() or 0
 
     local maxWidthScreen
-    if anchorCorner == "TOPLEFT" then
+    if expansionAnchor == "TOPLEFT" then
         maxWidthScreen = screenW - left
-    elseif anchorCorner == "TOPRIGHT" then
+    elseif expansionAnchor == "TOPRIGHT" then
         maxWidthScreen = right
-    elseif anchorCorner == "BOTTOMLEFT" then
+    elseif expansionAnchor == "BOTTOMLEFT" then
         maxWidthScreen = screenW - left
-    elseif anchorCorner == "BOTTOMRIGHT" then
+    elseif expansionAnchor == "BOTTOMRIGHT" then
         maxWidthScreen = right
     end
 
     -- Capture anchor point in screen space (before any height changes)
     local anchorX, anchorY
-    if anchorCorner == "TOPLEFT" then
+    if expansionAnchor == "TOPLEFT" then
         anchorX, anchorY = left, top
-    elseif anchorCorner == "TOPRIGHT" then
+    elseif expansionAnchor == "TOPRIGHT" then
         anchorX, anchorY = right, top
-    elseif anchorCorner == "BOTTOMLEFT" then
+    elseif expansionAnchor == "BOTTOMLEFT" then
         anchorX, anchorY = left, bottom
-    elseif anchorCorner == "BOTTOMRIGHT" then
+    elseif expansionAnchor == "BOTTOMRIGHT" then
         anchorX, anchorY = right, bottom
     end
 
@@ -518,18 +520,18 @@ function WoWPro.RowSizeSet()
         end
     end
 
-    -- Calculate available screen space based on current frame position and anchor corner
+    -- Calculate available screen space based on current frame position and expansion anchor
     -- This prevents auto-resize from exceeding screen edges without moving the frame
     left = WoWPro.MainFrame:GetLeft() or 0
     right = WoWPro.MainFrame:GetRight() or screenW
 
-    if anchorCorner == "TOPLEFT" then
+    if expansionAnchor == "TOPLEFT" then
         maxWidthScreen = screenW - left
-    elseif anchorCorner == "TOPRIGHT" then
+    elseif expansionAnchor == "TOPRIGHT" then
         maxWidthScreen = right
-    elseif anchorCorner == "BOTTOMLEFT" then
+    elseif expansionAnchor == "BOTTOMLEFT" then
         maxWidthScreen = screenW - left
-    elseif anchorCorner == "BOTTOMRIGHT" then
+    elseif expansionAnchor == "BOTTOMRIGHT" then
         maxWidthScreen = right
     end
 
@@ -637,32 +639,19 @@ function WoWPro.RowSizeSet()
         local screenH = ui:GetHeight()
 
         if not _G.InCombatLockdown() then
-            -- Set height, then re-anchor to the saved screen-space point
-            WoWPro.MainFrame:SetHeight(totalh)
-
-            -- If grown edge is off-screen, adjust anchorY so the anchor stays fixed and content moves inward
-            local frameBottom = WoWPro.MainFrame:GetBottom() or 0
+            -- Clamp height to screen edge based on expansion anchor; do not re-anchor
             local frameTop = WoWPro.MainFrame:GetTop() or screenH
-            if anchorCorner == "TOPLEFT" or anchorCorner == "TOPRIGHT" then
-                if frameBottom < 0 then
-                    anchorY = anchorY - frameBottom
-                end
+            local frameBottom = WoWPro.MainFrame:GetBottom() or 0
+            local maxHeightScreen
+            if expansionAnchor == "TOPLEFT" or expansionAnchor == "TOPRIGHT" then
+                maxHeightScreen = frameTop
             else
-                if frameTop > screenH then
-                    anchorY = anchorY - (frameTop - screenH)
-                end
+                maxHeightScreen = screenH - frameBottom
             end
-
-            WoWPro.MainFrame:ClearAllPoints()
-            if anchorCorner == "TOPLEFT" then
-                WoWPro.MainFrame:SetPoint("TOPLEFT", ui, "BOTTOMLEFT", anchorX, anchorY)
-            elseif anchorCorner == "TOPRIGHT" then
-                WoWPro.MainFrame:SetPoint("TOPRIGHT", ui, "BOTTOMRIGHT", anchorX - screenW, anchorY)
-            elseif anchorCorner == "BOTTOMLEFT" then
-                WoWPro.MainFrame:SetPoint("BOTTOMLEFT", ui, "BOTTOMLEFT", anchorX, anchorY)
-            elseif anchorCorner == "BOTTOMRIGHT" then
-                WoWPro.MainFrame:SetPoint("BOTTOMRIGHT", ui, "BOTTOMRIGHT", anchorX - screenW, anchorY)
+            if maxHeightScreen and maxHeightScreen > 0 then
+                totalh = math.min(totalh, maxHeightScreen)
             end
+            WoWPro.MainFrame:SetHeight(totalh)
         end
     end
 
@@ -719,12 +708,12 @@ function WoWPro.AnchorStore(where)
         local screenH = ui:GetHeight()
         local frameW = WoWPro.MainFrame:GetWidth() or 200
         local frameH = WoWPro.MainFrame:GetHeight() or 300
-        local anchorCorner = WoWProDB.profile.anchorCorner or "TOPLEFT"
+        local expansionAnchor = WoWProDB.profile.expansionAnchor or "TOPLEFT"
 
         -- Ensure frame stays on screen (adjust position if needed)
         if pos[4] < 0 then pos[4] = 0 end
         if pos[4] + frameW > screenW then pos[4] = screenW - frameW end
-        if anchorCorner == "TOPLEFT" or anchorCorner == "TOPRIGHT" then
+        if expansionAnchor == "TOPLEFT" or expansionAnchor == "TOPRIGHT" then
             if pos[5] > screenH then pos[5] = screenH end
             if pos[5] - frameH < 0 then pos[5] = frameH end
         else
@@ -749,22 +738,25 @@ function WoWPro.AnchorStore(where)
                 pos[i] = pos[i] * scale
             end
 
-            -- Clamp position to screen before saving
-            local ui = _G.UIParent
-            local screenW = ui:GetWidth()
-            local screenH = ui:GetHeight()
-            local frameW = WoWPro.MainFrame:GetWidth() or 200
-            local frameH = WoWPro.MainFrame:GetHeight() or 300
-            local anchorCorner = WoWProDB.profile.anchorCorner or "TOPLEFT"
+            -- For ResizeEnd (manual resize), don't clamp - user positioned it with the handle
+            if where ~= "ResizeEnd" then
+                -- Clamp position to screen before saving
+                local ui = _G.UIParent
+                local screenW = ui:GetWidth()
+                local screenH = ui:GetHeight()
+                local frameW = WoWPro.MainFrame:GetWidth() or 200
+                local frameH = WoWPro.MainFrame:GetHeight() or 300
+                local expansionAnchor = WoWProDB.profile.expansionAnchor or "TOPLEFT"
 
-            if pos[4] < 0 then pos[4] = 0 end
-            if pos[4] + frameW > screenW then pos[4] = screenW - frameW end
-            if anchorCorner == "TOPLEFT" or anchorCorner == "TOPRIGHT" then
-                if pos[5] > screenH then pos[5] = screenH end
-                if pos[5] - frameH < 0 then pos[5] = frameH end
-            else
-                if pos[5] < 0 then pos[5] = 0 end
-                if pos[5] + frameH > screenH then pos[5] = screenH - frameH end
+                if pos[4] < 0 then pos[4] = 0 end
+                if pos[4] + frameW > screenW then pos[4] = screenW - frameW end
+                if expansionAnchor == "TOPLEFT" or expansionAnchor == "TOPRIGHT" then
+                    if pos[5] > screenH then pos[5] = screenH end
+                    if pos[5] - frameH < 0 then pos[5] = frameH end
+                else
+                    if pos[5] < 0 then pos[5] = 0 end
+                    if pos[5] + frameH > screenH then pos[5] = screenH - frameH end
+                end
             end
 
             WoWProDB.profile.position = pos
@@ -772,8 +764,10 @@ function WoWPro.AnchorStore(where)
             local size = {WoWPro.MainFrame:GetHeight(), WoWPro.MainFrame:GetWidth() }
             WoWProDB.profile.size = size
             WoWPro:dbp("AnchorStore(" .. where .. "): Saved size - Width: " .. size[2] .. " Height: " .. size[1])
-            -- After any position save, ensure bars are clamped on-screen
-            WoWPro:ClampBarsOnScreen()
+            -- After any position save, ensure bars are clamped on-screen (but not during manual resize)
+            if where ~= "ResizeEnd" then
+                WoWPro:ClampBarsOnScreen()
+            end
             WoWPro.MainFrame:SetScript("OnUpdate", nil)
         end
     end)
@@ -969,8 +963,8 @@ function WoWPro:CreateResizeButton()
     resizebutton:SetWidth(20)
     resizebutton:SetFrameLevel(WoWPro.MainFrame:GetFrameLevel()+3)
 
-    -- Position handle opposite the anchor corner (independent of Left Handed)
-    local anchorCorner = WoWProDB.profile.anchorCorner or "TOPLEFT"
+    -- Position handle opposite the expansion anchor (independent of Left Handed)
+    local anchorCorner = WoWProDB.profile.expansionAnchor or "TOPLEFT"
     local handleCorner = "BOTTOMRIGHT"
     if anchorCorner == "TOPRIGHT" then
         handleCorner = "BOTTOMLEFT"
@@ -985,7 +979,10 @@ function WoWPro:CreateResizeButton()
     -- Scripts --
         resizebutton:SetScript("OnMouseDown", function()
             WoWPro.InhibitAnchorRestore = true
-            local corner = WoWProDB.profile.anchorCorner or "TOPLEFT"
+            WoWPro.InhibitReanchor = true  -- Prevent RowSizeSet from re-anchoring during resize
+            WoWPro.InhibitClampBars = true -- Prevent ClampBarsOnScreen during manual resize
+            WoWPro.InhibitAnchorStore = true -- Prevent OnSizeChanged AnchorStore during resize
+            local corner = WoWProDB.profile.expansionAnchor or "TOPLEFT"
             WoWPro:SetDynamicResizeBounds(corner)
             WoWPro.MainFrame:StartSizing(corner)
             WoWPro:UpdateGuide("ResizeStart")
@@ -997,7 +994,10 @@ function WoWPro:CreateResizeButton()
             WoWPro.MainFrame:StopMovingOrSizing()
             WoWPro.MainFrame:SetUserPlaced(false)
             WoWPro.InhibitAnchorRestore = false
-            WoWPro:UpdateGuide("ResizeEnd")
+            WoWPro.InhibitReanchor = false
+            WoWPro.InhibitClampBars = false
+            WoWPro.InhibitAnchorStore = false
+            
             WoWPro.MainFrame:SetScript("OnSizeChanged", nil)
             WoWPro.AnchorStore("ResizeEnd")
         end)
@@ -1039,64 +1039,15 @@ function WoWPro:SetDynamicResizeBounds(corner)
     end
 end
 
--- Helper: set anchor to a specific corner and persist
-function WoWPro:SetAnchorToCorner(corner)
+-- Helper: set expansion anchor to a specific corner
+function WoWPro:SetExpansionAnchor(corner)
     if _G.InCombatLockdown() then return end
-    local ui = _G.UIParent
-    local w, h = ui:GetWidth(), ui:GetHeight()
-    local left = WoWPro.MainFrame:GetLeft() or 0
-    local right = WoWPro.MainFrame:GetRight() or w
-    local top = WoWPro.MainFrame:GetTop() or h
-    local bottom = WoWPro.MainFrame:GetBottom() or 0
-    local frameW = WoWPro.MainFrame:GetWidth() or 200
-    local frameH = WoWPro.MainFrame:GetHeight() or 300
-
-    -- Get the current anchor
-    local oldCorner = WoWProDB.profile.anchorCorner or "TOPLEFT"
-    local anchorX, anchorY
-    if oldCorner == "TOPLEFT" then
-        anchorX, anchorY = left, top
-    elseif oldCorner == "TOPRIGHT" then
-        anchorX, anchorY = right, top
-    elseif oldCorner == "BOTTOMLEFT" then
-        anchorX, anchorY = left, bottom
-    elseif oldCorner == "BOTTOMRIGHT" then
-        anchorX, anchorY = right, bottom
-    end
-
-    -- Calculate new offsets so the window stays visually in the same place
-    local x, y
-    if corner == "TOPLEFT" then
-        x = anchorX
-        y = anchorY
-        WoWPro.MainFrame:ClearAllPoints()
-        WoWPro.MainFrame:SetPoint("TOPLEFT", ui, "BOTTOMLEFT", x, y)
-    elseif corner == "TOPRIGHT" then
-        x = anchorX - frameW
-        y = anchorY
-        WoWPro.MainFrame:ClearAllPoints()
-        WoWPro.MainFrame:SetPoint("TOPRIGHT", ui, "BOTTOMLEFT", x + frameW, y)
-    elseif corner == "BOTTOMLEFT" then
-        x = anchorX
-        y = anchorY - frameH
-        WoWPro.MainFrame:ClearAllPoints()
-        WoWPro.MainFrame:SetPoint("BOTTOMLEFT", ui, "BOTTOMLEFT", x, y + frameH)
-    elseif corner == "BOTTOMRIGHT" then
-        x = anchorX - frameW
-        y = anchorY - frameH
-        WoWPro.MainFrame:ClearAllPoints()
-        WoWPro.MainFrame:SetPoint("BOTTOMRIGHT", ui, "BOTTOMLEFT", x + frameW, y + frameH)
-    end
-
     -- Update side preference based on horizontal anchor
     WoWProDB.profile.leftside = (corner == "TOPLEFT" or corner == "BOTTOMLEFT")
-    -- Persist the anchor corner choice
-    WoWProDB.profile.anchorCorner = corner
+    -- Persist the expansion anchor choice
+    WoWProDB.profile.expansionAnchor = corner
     -- Update resize handle visibility based on new anchor
     WoWPro:UpdateResizeHandle()
-    -- Ensure bars are on-screen in case new anchor is near top
-    WoWPro:ClampBarsOnScreen()
-    WoWPro.AnchorStore("ResizeEnd")
 end
 
 -- Corner Resize Handles
@@ -1115,8 +1066,11 @@ function WoWPro:CreateCornerHandles()
 
         btn:SetScript("OnMouseDown", function()
             WoWPro.InhibitAnchorRestore = true
-            local anchorCorner = WoWProDB.profile.anchorCorner or "TOPLEFT"
-            WoWPro:SetDynamicResizeBounds(anchorCorner)
+            local expansionAnchor = WoWProDB.profile.expansionAnchor or "TOPLEFT"
+            WoWPro.InhibitReanchor = true
+            WoWPro.InhibitClampBars = true
+            WoWPro.InhibitAnchorStore = true
+            WoWPro:SetDynamicResizeBounds(expansionAnchor)
             WoWPro.MainFrame:StartSizing(point)
             WoWPro:UpdateGuide("ResizeStart")
             WoWPro.MainFrame:SetScript("OnSizeChanged", function()
@@ -1127,9 +1081,11 @@ function WoWPro:CreateCornerHandles()
             WoWPro.MainFrame:StopMovingOrSizing()
             WoWPro.MainFrame:SetUserPlaced(false)
             WoWPro.InhibitAnchorRestore = false
-            WoWPro:UpdateGuide("ResizeEnd")
+            WoWPro.InhibitReanchor = false
+            WoWPro.InhibitClampBars = false
+            WoWPro.InhibitAnchorStore = false
+            
             WoWPro.MainFrame:SetScript("OnSizeChanged", nil)
-            -- Keep the existing anchor corner; just persist size
             WoWPro.AnchorStore("ResizeEnd")
         end)
         return btn
@@ -1148,20 +1104,20 @@ function WoWPro:CreateCornerHandles()
     WoWPro.ResizeBR:Hide()
 end
 
--- Update visible resize handle based on anchor corner
+-- Update visible resize handle based on expansion anchor
 function WoWPro:UpdateResizeHandle()
     if not WoWProDB.profile.resize then return end
 
-    local anchorCorner = WoWProDB.profile.anchorCorner or "TOPLEFT"
+    local expansionAnchor = WoWProDB.profile.expansionAnchor or "TOPLEFT"
     local oppositeCorner
 
-    if anchorCorner == "TOPLEFT" then
+    if expansionAnchor == "TOPLEFT" then
         oppositeCorner = "BOTTOMRIGHT"
-    elseif anchorCorner == "TOPRIGHT" then
+    elseif expansionAnchor == "TOPRIGHT" then
         oppositeCorner = "BOTTOMLEFT"
-    elseif anchorCorner == "BOTTOMLEFT" then
+    elseif expansionAnchor == "BOTTOMLEFT" then
         oppositeCorner = "TOPRIGHT"
-    elseif anchorCorner == "BOTTOMRIGHT" then
+    elseif expansionAnchor == "BOTTOMRIGHT" then
         oppositeCorner = "TOPLEFT"
     end
 
