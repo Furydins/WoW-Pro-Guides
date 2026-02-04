@@ -145,6 +145,20 @@ function WoWPro:TitlebarShow()
     else
         WoWPro.ButtonBar:Hide()
     end
+    -- Keep options (gear) button visible when button bar is hidden
+    if WoWPro.OptionsButton then
+        WoWPro.OptionsButton:ClearAllPoints()
+        if WoWProDB.profile.buttonbar then
+            WoWPro.OptionsButton:SetParent(WoWPro.ButtonBar)
+            WoWPro.OptionsButton:SetPoint("CENTER", WoWPro.ButtonBar, "RIGHT", -14, -1)
+            WoWPro.OptionsButton:Show()
+        else
+            local anchor = (WoWPro.Titlebar and WoWPro.Titlebar:IsShown()) and WoWPro.Titlebar or WoWPro.MainFrame
+            WoWPro.OptionsButton:SetParent(anchor)
+            WoWPro.OptionsButton:SetPoint("TOPRIGHT", anchor, "TOPRIGHT", -6, -6)
+            WoWPro.OptionsButton:Show()
+        end
+    end
     -- Ensure top bars remain on-screen
     if WoWProDB.profile.buttonbar then
         WoWPro:ClampBarsOnScreen()
