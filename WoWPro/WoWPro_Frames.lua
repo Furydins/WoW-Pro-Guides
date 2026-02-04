@@ -639,18 +639,47 @@ function WoWPro.RowSizeSet()
         local screenH = ui:GetHeight()
 
         if not _G.InCombatLockdown() then
-            -- Clamp height to screen edge based on expansion anchor; do not re-anchor
+            -- Before resizing, re-anchor frame to expansionAnchor so height grows in correct direction
+            local pt, parent, relPt, x, y = WoWPro.MainFrame:GetPoint()
+            if pt ~= expansionAnchor then
+                -- Get frame's current screen position
+                local curLeft = WoWPro.MainFrame:GetLeft() or 0
+                local curRight = WoWPro.MainFrame:GetRight() or screenW
+                local curTop = WoWPro.MainFrame:GetTop() or screenH
+                local curBottom = WoWPro.MainFrame:GetBottom() or 0
+
+                -- Calculate offset from new anchor point to maintain screen position
+                local newX, newY
+                if expansionAnchor == "TOPLEFT" then
+                    newX, newY = curLeft, curTop - screenH
+                elseif expansionAnchor == "TOPRIGHT" then
+                    newX, newY = curRight - screenW, curTop - screenH
+                elseif expansionAnchor == "BOTTOMLEFT" then
+                    newX, newY = curLeft, curBottom
+                elseif expansionAnchor == "BOTTOMRIGHT" then
+                    newX, newY = curRight - screenW, curBottom
+                end
+
+                WoWPro.MainFrame:ClearAllPoints()
+                WoWPro.MainFrame:SetPoint(expansionAnchor, _G.UIParent, expansionAnchor, newX, newY)
+            end
+
+            -- After re-anchoring, recalculate frame position for accurate edge clamping
             local frameTop = WoWPro.MainFrame:GetTop() or screenH
             local frameBottom = WoWPro.MainFrame:GetBottom() or 0
+
+            -- Calculate maximum height before hitting screen edge in the growth direction
             local maxHeightScreen
             if expansionAnchor == "TOPLEFT" or expansionAnchor == "TOPRIGHT" then
-                maxHeightScreen = frameTop
+                -- Growing downward: max height is distance from top to bottom of screen
+                maxHeightScreen = screenH - frameTop
             else
-                maxHeightScreen = screenH - frameBottom
+                -- Growing upward: max height is distance from bottom to top of screen  
+                maxHeightScreen = frameTop
             end
-            if maxHeightScreen and maxHeightScreen > 0 then
-                totalh = math.min(totalh, maxHeightScreen)
-            end
+
+            -- Clamp calculated height to not exceed screen edge
+            totalh = math.min(totalh, maxHeightScreen)
             WoWPro.MainFrame:SetHeight(totalh)
         end
     end
@@ -975,7 +1004,6 @@ function WoWPro:CreateResizeButton()
     end
     resizebutton:SetPoint(handleCorner, WoWPro.MainFrame, handleCorner, 0, 0)
     resizebutton:SetNormalTexture("Interface\\Addons\\WoWPro\\Textures\\ResizeGripRight.tga")
-
     -- Scripts --
         resizebutton:SetScript("OnMouseDown", function()
             WoWPro.InhibitAnchorRestore = true
@@ -997,7 +1025,7 @@ function WoWPro:CreateResizeButton()
             WoWPro.InhibitReanchor = false
             WoWPro.InhibitClampBars = false
             WoWPro.InhibitAnchorStore = false
-            
+
             WoWPro.MainFrame:SetScript("OnSizeChanged", nil)
             WoWPro.AnchorStore("ResizeEnd")
         end)
@@ -1063,7 +1091,6 @@ function WoWPro:CreateCornerHandles()
         if texFlipH then l, r = 1, 0 end
         if texFlipV then t, b = 1, 0 end
         tex:SetTexCoord(l, r, t, b)
-
         btn:SetScript("OnMouseDown", function()
             WoWPro.InhibitAnchorRestore = true
             local expansionAnchor = WoWProDB.profile.expansionAnchor or "TOPLEFT"
@@ -1084,7 +1111,7 @@ function WoWPro:CreateCornerHandles()
             WoWPro.InhibitReanchor = false
             WoWPro.InhibitClampBars = false
             WoWPro.InhibitAnchorStore = false
-            
+
             WoWPro.MainFrame:SetScript("OnSizeChanged", nil)
             WoWPro.AnchorStore("ResizeEnd")
         end)
