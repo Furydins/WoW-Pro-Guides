@@ -88,6 +88,9 @@ local function handler(msg, editbox)
         WoWPro.TradeskillsReport()
     elseif ltoken == 'reset' then
         WoWPro:RESET()
+    elseif ltoken == 'resetwindow' then
+        WoWPro.ResetMainFrameAnchor()
+        _G.DEFAULT_CHAT_FRAME:AddMessage("|cFF00FF00WoWPro|r window reset.")
     elseif ltoken == "taint" then
         WoWProDB.global.Tainted = {}
         local now = date("%Y%m%d%H%M")
@@ -177,7 +180,7 @@ local function handler(msg, editbox)
             _G.ReloadUI()
         end
     else
-        local text = ("%s or %s [where¦reset¦guide-bug¦taint¦etrace-start¦etrace-end¦clear-log¦log¦api-probe¦devcoords¦devzone|devmode¦disable-addons¦enable-addons]"):format(_G.SLASH_WOWPRO1, _G.SLASH_WOWPRO2)
+        local text = ("%s or %s [where¦reset¦resetwindow¦guide-bug¦taint¦etrace-start¦etrace-end¦clear-log¦log¦api-probe¦devcoords¦devzone|devmode¦disable-addons¦enable-addons]"):format(_G.SLASH_WOWPRO1, _G.SLASH_WOWPRO2)
         _G.ChatFrame1:AddMessage(text)
     end
 end

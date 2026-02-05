@@ -21,6 +21,17 @@ function WoWPro.ResetMainFramePosition()
     WoWPro.MainFrame:SetPoint("TOPLEFT", _G.UIParent, "BOTTOMLEFT", left, top)
 end
 
+function WoWPro.ResetMainFrameAnchor()
+    if _G.InCombatLockdown() then return end
+    WoWPro.MainFrame:ClearAllPoints()
+    WoWPro.MainFrame:SetPoint("TOPLEFT", _G.UIParent, "RIGHT", -210, 175)
+    WoWPro.MainFrame:SetHeight(WoWProDB.profile.vminresize or 300)
+    WoWPro.MainFrame:Show()
+    WoWPro.AnchorStore("ResetMainFrameAnchor")
+    WoWPro:ClampBarsOnScreen()
+    WoWPro:UpdateGuide("ResetMainFrameAnchor")
+end
+
 function WoWPro:MinimapSet()
     local icon = _G.LibStub("LibDBIcon-1.0")
     if not WoWProDB.profile.minimap.hide then
@@ -482,6 +493,8 @@ function WoWPro.RowSizeSet()
     local screenW = ui:GetWidth()
     local left = WoWPro.MainFrame:GetLeft() or 0
     local right = WoWPro.MainFrame:GetRight() or screenW
+    local top = WoWPro.MainFrame:GetTop() or 0
+    local bottom = WoWPro.MainFrame:GetBottom() or 0
 
     local maxWidthScreen
     if expansionAnchor == "TOPLEFT" then
@@ -492,6 +505,18 @@ function WoWPro.RowSizeSet()
         maxWidthScreen = screenW - left
     elseif expansionAnchor == "BOTTOMRIGHT" then
         maxWidthScreen = right
+    end
+
+    -- Capture anchor point in screen space (before any height changes)
+    local anchorX, anchorY
+    if expansionAnchor == "TOPLEFT" then
+        anchorX, anchorY = left, top
+    elseif expansionAnchor == "TOPRIGHT" then
+        anchorX, anchorY = right, top
+    elseif expansionAnchor == "BOTTOMLEFT" then
+        anchorX, anchorY = left, bottom
+    elseif expansionAnchor == "BOTTOMRIGHT" then
+        anchorX, anchorY = right, bottom
     end
 
     -- Hiding the row if it's past the set number of steps --
@@ -626,7 +651,7 @@ function WoWPro.RowSizeSet()
 
         if not _G.InCombatLockdown() then
             -- Before resizing, re-anchor frame to expansionAnchor so height grows in correct direction
-            local pt = WoWPro.MainFrame:GetPoint()
+            local pt, parent, relPt, x, y = WoWPro.MainFrame:GetPoint()
             if pt ~= expansionAnchor then
                 -- Get frame's current screen position
                 local curLeft = WoWPro.MainFrame:GetLeft() or 0
@@ -652,6 +677,7 @@ function WoWPro.RowSizeSet()
 
             -- After re-anchoring, recalculate frame position for accurate edge clamping
             local frameTop = WoWPro.MainFrame:GetTop() or screenH
+            local frameBottom = WoWPro.MainFrame:GetBottom() or 0
 
             -- Calculate maximum height before hitting screen edge in the growth direction
             local maxHeightScreen

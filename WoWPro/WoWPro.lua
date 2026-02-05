@@ -1614,11 +1614,9 @@ function WoWPro.AchievementsScrape()
     end
     for cid, cinfo in pairs(WoWProDB.global.Achievements.Category) do
         local numItems = _G.GetCategoryNumAchievements(cid)
-        if numItems then
-            for index = 1,numItems do
-                local id, name, _, _, _, _, _, _, _, icon = _G.GetAchievementInfo(cid, index)
-                WoWProDB.global.Achievements.Achievement[id] = {['cid'] = cid, ['name'] = name, ['icon'] = icon }
-            end
+        for index = 1,numItems do
+            local id, name, _, _, _, _, _, _, _, icon = _G.GetAchievementInfo(cid, index)
+            WoWProDB.global.Achievements.Achievement[id] = {['cid'] = cid, ['name'] = name, ['icon'] = icon }
         end
     end
 end
