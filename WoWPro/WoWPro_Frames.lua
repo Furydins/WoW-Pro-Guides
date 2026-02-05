@@ -709,75 +709,77 @@ function WoWPro.AnchorStore(where)
     -- Update the position when we are no longer in combat
     -- For ResizeEnd, save immediately since we're definitely out of combat
     if where == "ResizeEnd" then
-        local pos = {WoWPro.MainFrame:GetPoint(1)}
-        pos[2] = "UIParent"
-        local scale = WoWPro.MainFrame:GetScale()
-        for i=4,5 do
-            pos[i] = pos[i] * scale
-        end
-
-        -- Clamp position to screen before saving to prevent off-screen restores
+        -- Use the user's configured expansion anchor for consistent position storage
+        local expansionAnchor = WoWProDB.profile.expansionAnchor or "TOPLEFT"
         local ui = _G.UIParent
         local screenW = ui:GetWidth()
         local screenH = ui:GetHeight()
-        local frameW = WoWPro.MainFrame:GetWidth() or 200
-        local frameH = WoWPro.MainFrame:GetHeight() or 300
-        local expansionAnchor = WoWProDB.profile.expansionAnchor or "TOPLEFT"
-
-        -- Ensure frame stays on screen (adjust position if needed)
-        if pos[4] < 0 then pos[4] = 0 end
-        if pos[4] + frameW > screenW then pos[4] = screenW - frameW end
-        if expansionAnchor == "TOPLEFT" or expansionAnchor == "TOPRIGHT" then
-            if pos[5] > screenH then pos[5] = screenH end
-            if pos[5] - frameH < 0 then pos[5] = frameH end
-        else
-            if pos[5] < 0 then pos[5] = 0 end
-            if pos[5] + frameH > screenH then pos[5] = screenH - frameH end
+        local left = WoWPro.MainFrame:GetLeft() or 0
+        local right = WoWPro.MainFrame:GetRight() or screenW
+        local top = WoWPro.MainFrame:GetTop() or screenH
+        local bottom = WoWPro.MainFrame:GetBottom() or 0
+        
+        -- Calculate offsets based on expansion anchor
+        local offsetX, offsetY
+        if expansionAnchor == "TOPLEFT" then
+            offsetX, offsetY = left, top - screenH
+        elseif expansionAnchor == "TOPRIGHT" then
+            offsetX, offsetY = right - screenW, top - screenH
+        elseif expansionAnchor == "BOTTOMLEFT" then
+            offsetX, offsetY = left, bottom
+        elseif expansionAnchor == "BOTTOMRIGHT" then
+            offsetX, offsetY = right - screenW, bottom
+        end
+        
+        local pos = {expansionAnchor, "UIParent", expansionAnchor, offsetX, offsetY}
+        local scale = WoWPro.MainFrame:GetScale()
+        for i=4,5 do
+            pos[i] = pos[i] * scale
         end
 
         WoWProDB.profile.position = pos
         WoWProDB.profile.scale = scale
         local size = {WoWPro.MainFrame:GetHeight(), WoWPro.MainFrame:GetWidth() }
         WoWProDB.profile.size = size
-        WoWPro:dbp("AnchorStore(" .. where .. "): Saved size - Width: " .. size[2] .. " Height: " .. size[1])
+        WoWPro:dbp("AnchorStore(" .. where .. "): Saved position using " .. expansionAnchor .. " - Width: " .. size[2] .. " Height: " .. size[1])
         return
     end
 
     WoWPro.MainFrame:SetScript("OnUpdate", function()
         if not WoWPro.MaybeCombatLockdown() then
-            local pos = {WoWPro.MainFrame:GetPoint(1)}
-            pos[2] = "UIParent"
+            -- Use the user's configured expansion anchor for consistent position storage
+            local expansionAnchor = WoWProDB.profile.expansionAnchor or "TOPLEFT"
+            local ui = _G.UIParent
+            local screenW = ui:GetWidth()
+            local screenH = ui:GetHeight()
+            local left = WoWPro.MainFrame:GetLeft() or 0
+            local right = WoWPro.MainFrame:GetRight() or screenW
+            local top = WoWPro.MainFrame:GetTop() or screenH
+            local bottom = WoWPro.MainFrame:GetBottom() or 0
+            
+            -- Calculate offsets based on expansion anchor
+            local offsetX, offsetY
+            if expansionAnchor == "TOPLEFT" then
+                offsetX, offsetY = left, top - screenH
+            elseif expansionAnchor == "TOPRIGHT" then
+                offsetX, offsetY = right - screenW, top - screenH
+            elseif expansionAnchor == "BOTTOMLEFT" then
+                offsetX, offsetY = left, bottom
+            elseif expansionAnchor == "BOTTOMRIGHT" then
+                offsetX, offsetY = right - screenW, bottom
+            end
+            
+            local pos = {expansionAnchor, "UIParent", expansionAnchor, offsetX, offsetY}
             local scale = WoWPro.MainFrame:GetScale()
             for i=4,5 do
                 pos[i] = pos[i] * scale
-            end
-
-            -- For ResizeEnd (manual resize), don't clamp - user positioned it with the handle
-            if where ~= "ResizeEnd" then
-                -- Clamp position to screen before saving
-                local ui = _G.UIParent
-                local screenW = ui:GetWidth()
-                local screenH = ui:GetHeight()
-                local frameW = WoWPro.MainFrame:GetWidth() or 200
-                local frameH = WoWPro.MainFrame:GetHeight() or 300
-                local expansionAnchor = WoWProDB.profile.expansionAnchor or "TOPLEFT"
-
-                if pos[4] < 0 then pos[4] = 0 end
-                if pos[4] + frameW > screenW then pos[4] = screenW - frameW end
-                if expansionAnchor == "TOPLEFT" or expansionAnchor == "TOPRIGHT" then
-                    if pos[5] > screenH then pos[5] = screenH end
-                    if pos[5] - frameH < 0 then pos[5] = frameH end
-                else
-                    if pos[5] < 0 then pos[5] = 0 end
-                    if pos[5] + frameH > screenH then pos[5] = screenH - frameH end
-                end
             end
 
             WoWProDB.profile.position = pos
             WoWProDB.profile.scale = scale
             local size = {WoWPro.MainFrame:GetHeight(), WoWPro.MainFrame:GetWidth() }
             WoWProDB.profile.size = size
-            WoWPro:dbp("AnchorStore(" .. where .. "): Saved size - Width: " .. size[2] .. " Height: " .. size[1])
+            WoWPro:dbp("AnchorStore(" .. where .. "): Saved position using " .. expansionAnchor .. " - Width: " .. size[2] .. " Height: " .. size[1])
             -- After any position save, ensure bars are clamped on-screen (but not during manual resize)
             if where ~= "ResizeEnd" then
                 WoWPro:ClampBarsOnScreen()
@@ -806,7 +808,10 @@ function WoWPro.AnchorRestore(reset_size)
     for i=4,5 do
         pos[i] = pos[i] / scale
     end
-    WoWPro.MainFrame:SetPoint(unpack(pos))
+    -- Look up parent frame from saved name string
+    local parentFrame = _G[pos[2]] or _G.UIParent
+    local posClone = {pos[1], parentFrame, pos[3], pos[4], pos[5]}
+    WoWPro.MainFrame:SetPoint(unpack(posClone))
     local size = WoWProDB.profile.size
     if size and not reset_size then
         WoWPro.MainFrame:SetHeight(size[1])
