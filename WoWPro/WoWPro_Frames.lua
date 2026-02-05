@@ -819,10 +819,9 @@ function WoWPro.AnchorRestore(reset_size)
     WoWPro.MainFrame:SetPoint(unpack(pos))
     local size = WoWProDB.profile.size
     if size and not reset_size then
-        local height = (size[1] and size[1] > 0) and size[1] or (WoWProDB.profile.vminresize or 300)
-        WoWPro.MainFrame:SetHeight(height)
+        WoWPro.MainFrame:SetHeight(size[1])
         WoWPro.MainFrame:SetWidth(size[2])
-        WoWPro:dbp("AnchorRestore: Restored saved size - Width: " .. size[2] .. " Height: " .. height)
+        WoWPro:dbp("AnchorRestore: Restored saved size - Width: " .. size[2] .. " Height: " .. size[1])
     elseif reset_size then
         size = {WoWPro.MainFrame:GetHeight(), WoWPro.MainFrame:GetWidth() }
         WoWProDB.profile.size = size
