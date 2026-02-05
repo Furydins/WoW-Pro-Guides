@@ -507,18 +507,6 @@ function WoWPro.RowSizeSet()
         maxWidthScreen = right
     end
 
-    -- Capture anchor point in screen space (before any height changes)
-    local anchorX, anchorY
-    if expansionAnchor == "TOPLEFT" then
-        anchorX, anchorY = left, top
-    elseif expansionAnchor == "TOPRIGHT" then
-        anchorX, anchorY = right, top
-    elseif expansionAnchor == "BOTTOMLEFT" then
-        anchorX, anchorY = left, bottom
-    elseif expansionAnchor == "BOTTOMRIGHT" then
-        anchorX, anchorY = right, bottom
-    end
-
     -- Hiding the row if it's past the set number of steps --
     for i,row in ipairs(WoWPro.rows) do
         if WoWProDB.profile.autoresize then
@@ -651,7 +639,7 @@ function WoWPro.RowSizeSet()
 
         if not _G.InCombatLockdown() then
             -- Before resizing, re-anchor frame to expansionAnchor so height grows in correct direction
-            local pt, parent, relPt, x, y = WoWPro.MainFrame:GetPoint()
+            local pt = select(1, WoWPro.MainFrame:GetPoint())
             if pt ~= expansionAnchor then
                 -- Get frame's current screen position
                 local curLeft = WoWPro.MainFrame:GetLeft() or 0
@@ -677,7 +665,6 @@ function WoWPro.RowSizeSet()
 
             -- After re-anchoring, recalculate frame position for accurate edge clamping
             local frameTop = WoWPro.MainFrame:GetTop() or screenH
-            local frameBottom = WoWPro.MainFrame:GetBottom() or 0
 
             -- Calculate maximum height before hitting screen edge in the growth direction
             local maxHeightScreen
@@ -1445,7 +1432,8 @@ function WoWPro:CreateTitleBar()
     titlebar:SetPoint("TOPRIGHT", WoWPro.MainFrame, "TOPRIGHT")
     titlebar:SetBackdrop( {
         bgFile = [[Interface\Tooltips\UI-Tooltip-Background]],
-        tile = true, tileSize = 16,
+        edgeFile = WoWProDB.profile.bordertexture,
+        tile = true, tileSize = 16, edgeSize = 16,
         insets = { left = 4,  right = 3,  top = 4,  bottom = 3 }
     })
     titlebar:RegisterForClicks("AnyUp")
