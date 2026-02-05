@@ -81,25 +81,26 @@ function WoWPro:DragSet()
             end
         end)
 
-        -- Enable titlebar dragging when button bar is disabled
-        if not WoWProDB.profile.buttonbar then
-            WoWPro.Titlebar:SetScript("OnMouseDown", function(this, button)
-                if button == "LeftButton" and WoWProDB.profile.drag then
-                    WoWPro.InhibitAnchorRestore = true
-                    WoWPro:StartMoveClamp()
-                    WoWPro.MainFrame:StartMoving()
-                elseif button == "RightButton" then
-                    WoWPro.EasyMenu(WoWPro.DropdownMenu, this, "cursor", 0 , 0, "MENU");
-                end
-            end)
-        else
-            -- Disable titlebar dragging when button bar is enabled (to avoid conflicts)
-            WoWPro.Titlebar:SetScript("OnMouseDown", function(this, button)
-                if button == "RightButton" then
-                    WoWPro.EasyMenu(WoWPro.DropdownMenu, this, "cursor", 0 , 0, "MENU");
-                end
-            end)
-        end
+        -- Enable titlebar dragging regardless of button bar visibility
+        WoWPro.Titlebar:SetScript("OnMouseDown", function(this, button)
+            if button == "LeftButton" and WoWProDB.profile.drag then
+                WoWPro.InhibitAnchorRestore = true
+                WoWPro:StartMoveClamp()
+                WoWPro.MainFrame:StartMoving()
+            elseif button == "RightButton" then
+                WoWPro.EasyMenu(WoWPro.DropdownMenu, this, "cursor", 0 , 0, "MENU");
+            end
+        end)
+        WoWPro.Titlebar:SetScript("OnMouseUp", function(this, button)
+            if button == "LeftButton" and WoWProDB.profile.drag then
+                WoWPro.MainFrame:StopMovingOrSizing()
+                WoWPro.MainFrame:SetUserPlaced(false)
+                WoWPro:StopMoveClamp()
+                WoWPro:DisableLeftHandedIfOffScreen()
+                WoWPro.AnchorStore("OnMouseUpTitlebar")
+                WoWPro.InhibitAnchorRestore = false
+            end
+        end)
     else
         WoWPro.ButtonBar:SetScript("OnMouseDown", function(this, button)
             if button == "RightButton" then
@@ -115,6 +116,8 @@ function WoWPro:DragSet()
                 WoWPro.EasyMenu(WoWPro.DropdownMenu, this, "cursor", 0 , 0, "MENU");
             end
         end)
+        WoWPro.Titlebar:SetScript("OnMouseUp", function(this, button)
+        end)
     end
 end
 
@@ -126,8 +129,9 @@ function WoWPro:PaddingSet()
         WoWPro.StickyFrame:SetPoint("TOPLEFT", WoWPro.Titlebar, "BOTTOMLEFT", pad+3, -pad+3)
         WoWPro.StickyFrame:SetPoint("TOPRIGHT", WoWPro.Titlebar, "BOTTOMRIGHT", -pad-3, -pad+3)
     else
-        WoWPro.StickyFrame:SetPoint("TOPLEFT", pad+3, -pad-3)
-        WoWPro.StickyFrame:SetPoint("TOPRIGHT", -pad-3, -pad-3)
+        -- Match the same vertical padding as the titlebar-shown case
+        WoWPro.StickyFrame:SetPoint("TOPLEFT", pad+3, -pad+3)
+        WoWPro.StickyFrame:SetPoint("TOPRIGHT", -pad-3, -pad+3)
     end
     WoWPro.GuideFrame:SetPoint("TOPLEFT", WoWPro.StickyFrame, "BOTTOMLEFT" )
     WoWPro.GuideFrame:SetPoint("TOPRIGHT", WoWPro.StickyFrame, "BOTTOMRIGHT" )
