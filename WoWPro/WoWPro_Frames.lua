@@ -718,7 +718,7 @@ function WoWPro.AnchorStore(where)
         local right = WoWPro.MainFrame:GetRight() or screenW
         local top = WoWPro.MainFrame:GetTop() or screenH
         local bottom = WoWPro.MainFrame:GetBottom() or 0
-        
+
         -- Calculate offsets based on expansion anchor
         local offsetX, offsetY
         if expansionAnchor == "TOPLEFT" then
@@ -730,7 +730,7 @@ function WoWPro.AnchorStore(where)
         elseif expansionAnchor == "BOTTOMRIGHT" then
             offsetX, offsetY = right - screenW, bottom
         end
-        
+
         local pos = {expansionAnchor, "UIParent", expansionAnchor, offsetX, offsetY}
         local scale = WoWPro.MainFrame:GetScale()
         for i=4,5 do
@@ -756,7 +756,7 @@ function WoWPro.AnchorStore(where)
             local right = WoWPro.MainFrame:GetRight() or screenW
             local top = WoWPro.MainFrame:GetTop() or screenH
             local bottom = WoWPro.MainFrame:GetBottom() or 0
-            
+
             -- Calculate offsets based on expansion anchor
             local offsetX, offsetY
             if expansionAnchor == "TOPLEFT" then
@@ -768,7 +768,7 @@ function WoWPro.AnchorStore(where)
             elseif expansionAnchor == "BOTTOMRIGHT" then
                 offsetX, offsetY = right - screenW, bottom
             end
-            
+
             local pos = {expansionAnchor, "UIParent", expansionAnchor, offsetX, offsetY}
             local scale = WoWPro.MainFrame:GetScale()
             for i=4,5 do
