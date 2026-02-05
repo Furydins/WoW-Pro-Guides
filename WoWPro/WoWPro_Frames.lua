@@ -494,6 +494,8 @@ function WoWPro.RowSizeSet()
     local left = WoWPro.MainFrame:GetLeft() or 0
     local right = WoWPro.MainFrame:GetRight() or screenW
     local top = WoWPro.MainFrame:GetTop() or 0
+    local bottom = WoWPro.MainFrame:GetBottom() or 0
+
     local maxWidthScreen
     if expansionAnchor == "TOPLEFT" then
         maxWidthScreen = screenW - left
@@ -637,7 +639,7 @@ function WoWPro.RowSizeSet()
 
         if not _G.InCombatLockdown() then
             -- Before resizing, re-anchor frame to expansionAnchor so height grows in correct direction
-            local pt = WoWPro.MainFrame:GetPoint()
+            local pt = select(1, WoWPro.MainFrame:GetPoint())
             if pt ~= expansionAnchor then
                 -- Get frame's current screen position
                 local curLeft = WoWPro.MainFrame:GetLeft() or 0
