@@ -493,6 +493,7 @@ function WoWPro.RowSizeSet()
     local screenW = ui:GetWidth()
     local left = WoWPro.MainFrame:GetLeft() or 0
     local right = WoWPro.MainFrame:GetRight() or screenW
+    local top = WoWPro.MainFrame:GetTop() or 0
     local maxWidthScreen
     if expansionAnchor == "TOPLEFT" then
         maxWidthScreen = screenW - left
