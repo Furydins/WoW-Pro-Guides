@@ -1095,14 +1095,46 @@ function WoWPro:RowUpdate(offset)
     local step_limit = WoWProDB.profile.numsteps + 5
 	local sendsteps = "steps "
 
+    -- Pre-build the visible steps so we can sort stickies to the top without reparenting rows
+    -- StickyFrame reparenting is avoided because CheckButton rows are protected in combat.
+    -- StickyTitleBar now keys off ActiveStickyCount, which is computed from the sorted rows.
+    local allSteps = {}
+    local tempK = k
+    for i = 1, 15 do
+        if WoWProDB.profile.guidescroll then
+            table.insert(allSteps, tempK)
+            tempK = tempK + 1
+        else
+            tempK = WoWPro.NextStep(tempK, i)
+            table.insert(allSteps, tempK)
+            tempK = tempK + 1
+        end
+    end
+
+    -- Now sort: stickies first, then regular
+    local completion = WoWProCharDB.Guide[GID].completion
+    local stickySteps = {}
+    local regularSteps = {}
+    for _, stepIdx in ipairs(allSteps) do
+        if stepIdx then
+            if WoWPro.sticky[stepIdx] and not completion[stepIdx] then
+                table.insert(stickySteps, stepIdx)
+            else
+                table.insert(regularSteps, stepIdx)
+            end
+        end
+    end
+
+    -- Merge: stickies first, then regular
+    local stepList = {}
+    for _, v in ipairs(stickySteps) do table.insert(stepList, v) end
+    for _, v in ipairs(regularSteps) do table.insert(stepList, v) end
 
     for i = 1, 15 do
         -- WoWPro:dbp("WoWPro:RowUpdate(i=%d)", i)
-        -- Skipping any skipped steps, unsticky steps, and optional steps unless it's time for them to display --
-        if not WoWProDB.profile.guidescroll then
-            k = WoWPro.NextStep(k, i)
-            WoWPro:print("RowUpdate(%d,%d): %s", i, k, WoWPro.EmitSafeStep(k))
-        end
+        -- Use sorted step list with stickies first --
+        k = stepList[i]
+        if not k then break end
 
         --Setup row--
         local currentRow = WoWPro.rows[i]
@@ -1129,7 +1161,7 @@ function WoWPro:RowUpdate(offset)
         local item = WoWPro.item[k]
         local questtext = WoWPro.questtext[k]
         local lootitem = WoWPro.lootitem[k]
-        local completion = WoWProCharDB.Guide[GID].completion
+        completion = WoWProCharDB.Guide[GID].completion
 
         if (i == 1) and not step then
             WoWProCharDB.Guide[GID].done = true
@@ -1796,8 +1828,6 @@ if step then
         end
 
         WoWPro.rows[i] = currentRow
-
-        k = k + 1
     end
 
     WoWPro.ActiveStickyCount = WoWPro.ActiveStickyCount or 0

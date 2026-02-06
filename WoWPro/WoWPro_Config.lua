@@ -253,7 +253,7 @@ local function createDisplayConfig()
             anchorheading = {
                 order = 30,
                 type = "header",
-                name = L["Window Anchor Point"],
+                name = L["Window Expansion Anchor"],
             },
             drag = {
                 order = 30.1,
@@ -264,22 +264,22 @@ local function createDisplayConfig()
                 set = function(info,val) WoWProDB.profile.drag = val
                     WoWPro.DragSet() end
             },
-            anchorCorner = {
+            expansionAnchor = {
                 order = 30.3,
                 type = "select",
                 name = " ",
-                desc = L["Choose which corner anchors the window; it will grow away from that corner and stay on-screen."],
+                desc = L["Choose which corner the window expands from; content grows away from that corner and stays on-screen."],
                 values = {
                     ["TOPLEFT"] = "Top Left",
                     ["TOPRIGHT"] = "Top Right",
                     ["BOTTOMLEFT"] = "Bottom Left",
                     ["BOTTOMRIGHT"] = "Bottom Right",
                 },
-                get = function(info) return WoWProDB.profile.anchorCorner or "TOPLEFT" end,
+                get = function(info) return WoWProDB.profile.expansionAnchor or "TOPLEFT" end,
                 set = function(info, val)
-                    WoWPro:SetAnchorToCorner(val)
+                    WoWProDB.profile.expansionAnchor = val
+                    WoWProDB.profile.leftside = (val == "TOPLEFT" or val == "BOTTOMLEFT")
                     WoWPro:UpdateResizeHandle()
-                    WoWPro.CustomizeFrames()
                 end,
             },
             resizeheading = {
