@@ -1161,7 +1161,7 @@ function WoWPro:RowUpdate(offset)
         local item = WoWPro.item[k]
         local questtext = WoWPro.questtext[k]
         local lootitem = WoWPro.lootitem[k]
-        local completion = WoWProCharDB.Guide[GID].completion
+        completion = WoWProCharDB.Guide[GID].completion
 
         if (i == 1) and not step then
             WoWProCharDB.Guide[GID].done = true
