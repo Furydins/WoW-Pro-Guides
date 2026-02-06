@@ -1,3 +1,16 @@
+# Release 2026.02.06.A
+## Bug Fixes
+* Ace3 Library Updated to Release-r1390
+* LibSharedMedia Library Updated to v11.2.1
+* Hendo72: Lots of window anchor, movement, and look and feel changes to guide window!
+* Various combat taint/protection issues in Midnight
+* Throttle on Update event on windows to lessen CPU load
+
+## Guide Updates
+* TBC:  Draenai Intro, Ghostlands
+* Midnight: Eversong Woods, Intro, PrePatch
+
+
 # Release 2026.01.21.A
 ## Bug Fixes
 * Midnight and TBC Support!
