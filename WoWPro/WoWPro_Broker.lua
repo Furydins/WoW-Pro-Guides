@@ -1129,12 +1129,26 @@ function WoWPro:RowUpdate(offset)
     local stepList = {}
     for _, v in ipairs(stickySteps) do table.insert(stepList, v) end
     for _, v in ipairs(regularSteps) do table.insert(stepList, v) end
+    WoWPro.RowLimit = #stepList
 
     for i = 1, 15 do
         -- WoWPro:dbp("WoWPro:RowUpdate(i=%d)", i)
         -- Use sorted step list with stickies first --
         k = stepList[i]
-        if not k then break end
+        if not k then
+            for j = i, 15 do
+                WoWPro.rows[j]:Hide()
+            end
+            break
+        end
+
+        if not WoWPro.step[k] then
+            WoWPro.RowLimit = math.min(WoWPro.RowLimit or 15, i - 1)
+            for j = i, 15 do
+                WoWPro.rows[j]:Hide()
+            end
+            break
+        end
 
         --Setup row--
         local currentRow = WoWPro.rows[i]
