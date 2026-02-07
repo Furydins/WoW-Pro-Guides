@@ -703,18 +703,18 @@ function WoWPro.RowSizeSet()
 
             -- Clamp calculated height to not exceed screen edge
             totalh = math.min(totalh, maxHeightScreen)
-            
+
             -- Temporarily disable clamping to allow frame to grow upward for bottom-anchored frames
             local wasClampedToScreen = WoWPro.MainFrame:IsClampedToScreen()
             WoWPro.MainFrame:SetClampedToScreen(false)
             WoWPro.MainFrame:SetHeight(totalh)
             WoWPro.MainFrame:SetClampedToScreen(wasClampedToScreen)
-            
+
             -- For bottom-anchored frames, re-establish the anchor after resize to ensure bottom doesn't drift
             if expansionAnchor == "BOTTOMLEFT" or expansionAnchor == "BOTTOMRIGHT" then
-                local pt, relativeTo, relativePoint, x, y = WoWPro.MainFrame:GetPoint(1)
-                if pt then
-                    WoWPro.MainFrame:SetPoint(pt, relativeTo, relativePoint, x, y)
+                local ptAnchor, relTo, relPt, x, y = WoWPro.MainFrame:GetPoint(1)
+                if ptAnchor then
+                    WoWPro.MainFrame:SetPoint(ptAnchor, relTo, relPt, x, y)
                 end
             end
         end
