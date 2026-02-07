@@ -503,10 +503,9 @@ function WoWPro.RowSizeSet()
 
     -- Get current expansion anchor (default to TOPLEFT if not set)
     local expansionAnchor = WoWProDB.profile.expansionAnchor or "TOPLEFT"
-    AnchorDebug("RowSizeSet: autoresize=%s exp=%s", tostring(WoWProDB.profile.autoresize), expansionAnchor)
+    AnchorDebug("RowSizeSet: autoresize=%s exp=%s", _G.tostring(WoWProDB.profile.autoresize), expansionAnchor)
 
     -- Calculate screen-limited bounds based on expansion anchor
-    local ui = _G.UIParent
     local screenW, screenH = GetUIScreenSize()
     local left = WoWPro.MainFrame:GetLeft() or 0
     local right = WoWPro.MainFrame:GetRight() or screenW
@@ -661,10 +660,10 @@ function WoWPro.RowSizeSet()
             local pt = WoWPro.MainFrame:GetPoint()
             local validAnchor = (pt == "TOPLEFT" or pt == "TOPRIGHT" or pt == "BOTTOMLEFT" or pt == "BOTTOMRIGHT")
             if not validAnchor then
-                AnchorDebug("RowSizeSet: pt=%s not corner; skipping reanchor", tostring(pt))
+                AnchorDebug("RowSizeSet: pt=%s not corner; skipping reanchor", _G.tostring(pt))
                 pt = expansionAnchor
             end
-            AnchorDebug("RowSizeSet: pt=%s exp=%s screen=(%.1f,%.1f)", tostring(pt), expansionAnchor, screenW or 0, screenH or 0)
+            AnchorDebug("RowSizeSet: pt=%s exp=%s screen=(%.1f,%.1f)", _G.tostring(pt), expansionAnchor, screenW or 0, screenH or 0)
             if pt ~= expansionAnchor then
                 -- Get frame's current screen position
                 local curLeft = WoWPro.MainFrame:GetLeft() or 0
@@ -690,22 +689,34 @@ function WoWPro.RowSizeSet()
                 WoWPro.MainFrame:SetPoint(expansionAnchor, _G.UIParent, expansionAnchor, newX, newY)
             end
 
-            -- After re-anchoring, recalculate frame position for accurate edge clamping
-            local frameTop = WoWPro.MainFrame:GetTop() or screenH
-
-            -- Calculate maximum height before hitting screen edge in the growth direction
+            -- After re-anchoring, calculate maximum height before hitting screen edge in the growth direction
             local maxHeightScreen
             if expansionAnchor == "TOPLEFT" or expansionAnchor == "TOPRIGHT" then
-                -- Growing downward: max height is distance from top to bottom of screen
+                -- Growing downward: max height is distance from current top to bottom of screen
+                local frameTop = WoWPro.MainFrame:GetTop() or screenH
                 maxHeightScreen = screenH - frameTop
             else
-                -- Growing upward: max height is distance from bottom to top of screen
-                maxHeightScreen = frameTop
+                -- Growing upward: max height is distance from current bottom to top of screen
+                local frameBottom = WoWPro.MainFrame:GetBottom() or 0
+                maxHeightScreen = screenH - frameBottom
             end
 
             -- Clamp calculated height to not exceed screen edge
             totalh = math.min(totalh, maxHeightScreen)
+            
+            -- Temporarily disable clamping to allow frame to grow upward for bottom-anchored frames
+            local wasClampedToScreen = WoWPro.MainFrame:IsClampedToScreen()
+            WoWPro.MainFrame:SetClampedToScreen(false)
             WoWPro.MainFrame:SetHeight(totalh)
+            WoWPro.MainFrame:SetClampedToScreen(wasClampedToScreen)
+            
+            -- For bottom-anchored frames, re-establish the anchor after resize to ensure bottom doesn't drift
+            if expansionAnchor == "BOTTOMLEFT" or expansionAnchor == "BOTTOMRIGHT" then
+                local pt, relativeTo, relativePoint, x, y = WoWPro.MainFrame:GetPoint(1)
+                if pt then
+                    WoWPro.MainFrame:SetPoint(pt, relativeTo, relativePoint, x, y)
+                end
+            end
         end
     end
 
@@ -886,8 +897,8 @@ function WoWPro.AnchorRestore(reset_size)
             screenW, screenH = GetUIScreenSize()
         end
         AnchorDebug("AnchorRestore: ui=(%.1f,%.1f) uiScale=%.3f screen=(%.1f,%.1f)", uiW, uiH, uiScale, screenW, screenH)
-        local savedW = tonumber(posClone[9])
-        local savedH = tonumber(posClone[10])
+        local savedW = _G.tonumber(posClone[9])
+        local savedH = _G.tonumber(posClone[10])
         if savedW and savedH and math.abs(savedW - screenW) < 1 and math.abs(savedH - screenH) < 1 then
             for i=4,5 do
                 posClone[i] = posClone[i] / scale
@@ -925,8 +936,8 @@ function WoWPro.AnchorRestore(reset_size)
     -- Debug: Check position immediately after SetPoint
     local debugTop = WoWPro.MainFrame:GetTop() or 0
     local debugBot = WoWPro.MainFrame:GetBottom() or 0
-    AnchorDebug("AnchorRestore: setpoint anchor=%s offs=(%.1f,%.1f) immediate=(T%.1f B%.1f)", tostring(posClone[1]), posClone[4] or 0, posClone[5] or 0, debugTop, debugBot)
-    
+    AnchorDebug("AnchorRestore: setpoint anchor=%s offs=(%.1f,%.1f) immediate=(T%.1f B%.1f)", _G.tostring(posClone[1]), posClone[4] or 0, posClone[5] or 0, debugTop, debugBot)
+
     WoWPro.SetMouseNotesPoints()
     WoWPro.InhibitAnchorStore = wasInhibited  -- Restore the previous state
     -- Prevent ClampBarsOnScreen from immediately moving the restored position
@@ -1580,6 +1591,7 @@ end
 -- Guide Frame --
 function WoWPro:CreateGuideFrame()
     WoWPro.GuideFrame = _G.CreateFrame("Frame", "WoWPro.GuideFrame", WoWPro.MainFrame)
+    WoWPro.GuideFrame:SetClipsChildren(true)
     WoWPro.GuideFrame:EnableMouse(true)
     WoWPro.GuideFrame:SetScript("OnMouseDown", function(this, button)
         if button == "LeftButton" and WoWProDB.profile.drag then
@@ -1991,6 +2003,7 @@ function WoWPro.ResetCurrentGuide()
     WoWPro.GuideLoaded = false
     local GID = WoWProDB.char.currentguide
     WoWProCharDB.Guide[GID] = nil
+    WoWPro.RowLimit = nil  -- Reset row limit so it recalculates on guide reload
     if WoWPro.stepcount then
         for j = 1,WoWPro.stepcount do
             if WoWPro.QID[j] then
