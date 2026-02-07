@@ -531,6 +531,9 @@ function WoWPro:OnEnable()
         WoWPro[tag] = WoWPro[tag] or {}
     end
 
+    -- Reset anchor restore flag for this session
+    WoWPro.HasRestoredThisSession = false
+
     WoWPro:CustomizeFrames()    -- Applies profile display settings
 
     -- Keybindings Initial Setup --
