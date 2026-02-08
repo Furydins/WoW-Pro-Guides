@@ -1533,7 +1533,7 @@ end
 function WoWPro.ShouldInstanceHide()
     local inInstance, instanceType = _G.IsInInstance()
 
-    local qidx = WoWPro.rows[WoWPro.ActiveStickyCount+1].index or 1
+    local qidx = WoWPro.rows[WoWPro:GetActiveStickyCount()+1].index or 1
     local guidetype = "WoWPro"
     if WoWProDB.char.currentguide and WoWPro.Guides[WoWProDB.char.currentguide] then
         guidetype = WoWPro.Guides[WoWProDB.char.currentguide].guidetype

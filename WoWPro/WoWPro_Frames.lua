@@ -514,7 +514,6 @@ function WoWPro.RowSizeSet()
     local pad = WoWProDB.profile.pad
     local biggeststep = 0
     local totalh, maxh = 0, WoWPro.GuideFrame:GetHeight()
-    WoWPro.ActiveStickyCount = WoWPro.ActiveStickyCount or 0
 
     -- Get current expansion anchor (default to TOPLEFT if not set)
     local expansionAnchor = WoWProDB.profile.expansionAnchor or "TOPLEFT"
@@ -537,7 +536,7 @@ function WoWPro.RowSizeSet()
     end
 
     -- Hiding the row if it's past the set number of steps --
-    local maxRows = WoWProDB.profile.numsteps + WoWPro.ActiveStickyCount
+    local maxRows = WoWProDB.profile.numsteps + WoWPro:GetActiveStickyCount()
     if WoWPro.RowLimit and WoWPro.RowLimit < maxRows then
         maxRows = WoWPro.RowLimit
     end
@@ -652,7 +651,7 @@ function WoWPro.RowSizeSet()
         end
     end
 
-    if WoWPro.ActiveStickyCount >= 1 then
+    if WoWPro:GetActiveStickyCount() >= 1 then
         WoWPro.StickyFrame:Show()
         WoWPro.StickyFrame:SetHeight(WoWPro.StickyTitle:GetHeight())
     else

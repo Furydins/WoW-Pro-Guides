@@ -18,6 +18,31 @@ WoWPro.mygroupsteps = {}
 WoWPro.myGroupTrack = {}
 WoWPro.playerGroup = {}
 
+-- Encapsulated sticky count to prevent taint from direct global access
+local _activeStickyCount = 0
+
+function WoWPro:GetActiveStickyCount()
+    return _activeStickyCount
+end
+
+function WoWPro:SetActiveStickyCount(count)
+    _activeStickyCount = count or 0
+end
+
+function WoWPro:IncrementActiveStickyCount()
+    _activeStickyCount = _activeStickyCount + 1
+end
+
+-- Deprecated: Direct property access for backward compatibility
+-- Use WoWPro:GetActiveStickyCount() instead
+WoWPro.ActiveStickyCount = setmetatable({}, {
+    __index = function() return _activeStickyCount end,
+    __newindex = function(_, _, v)
+        WoWPro:dbp("WARNING: Direct write to WoWPro.ActiveStickyCount is deprecated. Use WoWPro:SetActiveStickyCount()")
+        _activeStickyCount = v or 0
+    end
+})
+
 local quids_debug = false
 
 local function QidMapReduce(list, default, or_string, and_string, func, why, debug, abs_quid)
@@ -1079,7 +1104,7 @@ function WoWPro:RowUpdate(offset)
         return
     end
     WoWPro:dbp("Running: WoWPro:RowUpdate()")
-    WoWPro.ActiveStickyCount = 0
+    WoWPro:SetActiveStickyCount(0)
     local reload = false
     local k = offset or WoWPro.ActiveStep
     local itemkb = false
@@ -1221,7 +1246,7 @@ function WoWPro:RowUpdate(offset)
 			end
 		end
         -- Unstickying stickies --
-        if unsticky and (not sticky) and i == WoWPro.ActiveStickyCount+1 then
+        if unsticky and (not sticky) and i == WoWPro:GetActiveStickyCount()+1 then
             for n, row in ipairs(WoWPro.rows) do
                 -- Match by step text AND questtext (QO) AND lootitem (L) to handle multiple stickies with same name but different objectives/items
                 local rowQuesttext = WoWPro.questtext[row.index]
@@ -1259,11 +1284,11 @@ function WoWPro:RowUpdate(offset)
         end
 
         -- Counting stickies that are currently active (at the top) --
-        if sticky and i == WoWPro.ActiveStickyCount+1 and not completion[k] then
-            WoWPro.ActiveStickyCount = WoWPro.ActiveStickyCount+1
+        if sticky and i == WoWPro:GetActiveStickyCount()+1 and not completion[k] then
+            WoWPro:IncrementActiveStickyCount()
         end
 
-        if i > step_limit and WoWPro.ActiveStickyCount == 0 and WoWPro.GroupSync then
+        if i > step_limit and WoWPro:GetActiveStickyCount() == 0 and WoWPro.GroupSync then
 			_G.C_ChatInfo.SendAddonMessage("WoWPro", sendsteps , "PARTY")
             return false
         end
@@ -1870,8 +1895,7 @@ if step then
         WoWPro.rows[i] = currentRow
     end
 
-    WoWPro.ActiveStickyCount = WoWPro.ActiveStickyCount or 0
-    WoWPro.CurrentIndex = WoWPro.rows[1+WoWPro.ActiveStickyCount].index
+    WoWPro.CurrentIndex = WoWPro.rows[1+WoWPro:GetActiveStickyCount()].index
 
     if not _G.InCombatLockdown() then
         WoWPro.RowSizeSet()
@@ -3799,7 +3823,7 @@ function WoWPro.NextStep(guideIndex, rowIndex)
             end
 
             -- Skipping any unstickies until it's time for them to display --
-            if WoWPro.unsticky[guideIndex] and (not WoWPro.sticky[guideIndex]) and WoWPro.ActiveStickyCount and rowIndex > WoWPro.ActiveStickyCount+1 then
+            if WoWPro.unsticky[guideIndex] and (not WoWPro.sticky[guideIndex]) and rowIndex > WoWPro:GetActiveStickyCount()+1 then
                 skip = true
             end
 
