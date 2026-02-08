@@ -1122,7 +1122,7 @@ function WoWPro:RowUpdate(offset)
                 local showSticky = false
                 local action = WoWPro.action[stepIdx]
                 local QID = WoWPro.QID[stepIdx]
-                
+
                 -- For C steps with QID, only show if quest is in log
                 if action == "C" and QID then
                     if WoWPro:QIDsInTable(QID, WoWPro.QuestLog) then
@@ -1139,7 +1139,7 @@ function WoWPro:RowUpdate(offset)
                         showSticky = true
                     end
                 end
-                
+
                 if showSticky then
                     table.insert(stickySteps, stepIdx)
                 else
