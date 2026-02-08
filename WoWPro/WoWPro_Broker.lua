@@ -33,16 +33,6 @@ function WoWPro:IncrementActiveStickyCount()
     _activeStickyCount = _activeStickyCount + 1
 end
 
--- Deprecated: Direct property access for backward compatibility
--- Use WoWPro:GetActiveStickyCount() instead
-WoWPro.ActiveStickyCount = setmetatable({}, {
-    __index = function() return _activeStickyCount end,
-    __newindex = function(_, _, v)
-        WoWPro:dbp("WARNING: Direct write to WoWPro.ActiveStickyCount is deprecated. Use WoWPro:SetActiveStickyCount()")
-        _activeStickyCount = v or 0
-    end
-})
-
 local quids_debug = false
 
 local function QidMapReduce(list, default, or_string, and_string, func, why, debug, abs_quid)
