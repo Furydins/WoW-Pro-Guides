@@ -147,16 +147,17 @@ function WoWPro:CreateProgressBar(parent, anchor1)
     return progressBar
 end
 
-function WoWPro:CreateItemButton(parent, id)
+function WoWPro:CreateItemButton(parent, id, positionParent)
+    positionParent = positionParent or parent
     local itembutton = _G.CreateFrame("Button", "WoWPro_itembutton"..id, parent, "InsecureActionButtonTemplate")
     itembutton:SetAttribute("type", "item")
     itembutton:SetFrameStrata("LOW")
     itembutton:SetHeight(32)
     itembutton:SetWidth(32)
     if _G.WoWProDB.profile.leftside then
-        itembutton:SetPoint("TOPLEFT", parent, "TOPRIGHT", 10, -7)
+        itembutton:SetPoint("TOPLEFT", positionParent, "TOPRIGHT", 10, -7)
     else
-        itembutton:SetPoint("TOPRIGHT", parent, "TOPLEFT", -10, -7)
+        itembutton:SetPoint("TOPRIGHT", positionParent, "TOPLEFT", -10, -7)
     end
 
     local itemcooldown = _G.CreateFrame("Cooldown", nil, itembutton, "CooldownFrameTemplate")
@@ -173,16 +174,17 @@ function WoWPro:CreateItemButton(parent, id)
     return itembutton, itemicon, itemcooldown
 end
 
-function WoWPro:CreateJumpButton(parent, id)
+function WoWPro:CreateJumpButton(parent, id, positionParent)
+    positionParent = positionParent or parent
     local jumpbutton = _G.CreateFrame("Button", "WoWPro_jumpbutton"..id, parent, "InsecureActionButtonTemplate")
     jumpbutton:SetAttribute("type", "jump")
     jumpbutton:SetFrameStrata("LOW")
     jumpbutton:SetHeight(24)
     jumpbutton:SetWidth(24)
     if _G.WoWProDB.profile.leftside then
-        jumpbutton:SetPoint("TOPLEFT", parent, "TOPRIGHT", 10, -7)
+        jumpbutton:SetPoint("TOPLEFT", positionParent, "TOPRIGHT", 10, -7)
     else
-        jumpbutton:SetPoint("TOPRIGHT", parent, "TOPLEFT", -10, -7)
+        jumpbutton:SetPoint("TOPRIGHT", positionParent, "TOPLEFT", -10, -7)
     end
 
     local jumpicon = jumpbutton:CreateTexture(nil, "ARTWORK")
@@ -200,7 +202,8 @@ function WoWPro:CreateJumpButton(parent, id)
     return jumpbutton, jumpicon
 end
 
-function WoWPro:CreateTargetButton(parent, id)
+function WoWPro:CreateTargetButton(parent, id, positionParent)
+    positionParent = positionParent or parent
     local targetbutton = _G.CreateFrame("Button", "WoWPro_targetbutton"..id, parent, "InsecureActionButtonTemplate")
     targetbutton:SetAttribute("type", "macro")
     targetbutton:SetFrameStrata("LOW")
@@ -210,18 +213,18 @@ function WoWPro:CreateTargetButton(parent, id)
         if use_active then
             -- WoWPro:dbp("CTBλPosition: use_active=%s, leftside=%s", tostring(use_active), tostring(leftside))
             if _G.WoWProDB.profile.leftside then
-                targetbutton:SetPoint("TOPLEFT", parent, "TOPRIGHT", 46, -7)
+                targetbutton:SetPoint("TOPLEFT", positionParent, "TOPRIGHT", 46, -7)
                 -- WoWPro:dbp("CTBλPosition:A")
             else
-                targetbutton:SetPoint("TOPRIGHT", parent, "TOPLEFT", -46, -7)
+                targetbutton:SetPoint("TOPRIGHT", positionParent, "TOPLEFT", -46, -7)
                 -- WoWPro:dbp("CTBλPosition:B")
             end
         else
             if _G.WoWProDB.profile.leftside then
-                targetbutton:SetPoint("TOPLEFT", parent, "TOPRIGHT", 10, -7)
+                targetbutton:SetPoint("TOPLEFT", positionParent, "TOPRIGHT", 10, -7)
                 -- WoWPro:dbp("CTBλPosition:C")
             else
-                targetbutton:SetPoint("TOPRIGHT", parent, "TOPLEFT", -10, -7)
+                targetbutton:SetPoint("TOPRIGHT", positionParent, "TOPLEFT", -10, -7)
                 -- WoWPro:dbp("CTBλPosition:D")
             end
         end
@@ -244,16 +247,17 @@ function WoWPro:CreateTargetButton(parent, id)
     return targetbutton, targeticon
 end
 
-function WoWPro:CreateEAButton(parent, id)
+function WoWPro:CreateEAButton(parent, id, positionParent)
+    positionParent = positionParent or parent
     local eabutton = _G.CreateFrame("Button", "WoWPro_eabutton"..id, parent, "InsecureActionButtonTemplate")
     eabutton:SetAttribute("type", "ea")
     eabutton:SetFrameStrata("LOW")
     eabutton:SetHeight(32)
     eabutton:SetWidth(32)
     if _G.WoWProDB.profile.leftside then
-        eabutton:SetPoint("TOPLEFT", parent, "TOPRIGHT", 10, -7)
+        eabutton:SetPoint("TOPLEFT", positionParent, "TOPRIGHT", 10, -7)
     else
-        eabutton:SetPoint("TOPRIGHT", parent, "TOPLEFT", -10, -7)
+        eabutton:SetPoint("TOPRIGHT", positionParent, "TOPLEFT", -10, -7)
     end
 
     local cooldown = _G.CreateFrame("Cooldown", nil, eabutton, "CooldownFrameTemplate")
@@ -303,7 +307,8 @@ function WoWPro:CreateItemButtonSecured(id)
     return itembutton
 end
 
-function WoWPro:CreateLootsButton(parent, id, buttonIndex)
+function WoWPro:CreateLootsButton(parent, id, buttonIndex, positionParent)
+    positionParent = positionParent or parent
     buttonIndex = buttonIndex or 1
     local lootsbutton = _G.CreateFrame("Button", "WoWPro_looticon"..id.."_"..buttonIndex, parent)
     lootsbutton:SetFrameStrata("MEDIUM")
@@ -311,7 +316,7 @@ function WoWPro:CreateLootsButton(parent, id, buttonIndex)
     lootsbutton:SetWidth(24)
     -- Position based on buttonIndex: 0 pixels for first, -26 for second, -52 for third, etc.
     local xOffset = -(buttonIndex - 1) * 26
-    lootsbutton:SetPoint("TOPRIGHT", parent, "TOPRIGHT", xOffset, 0)
+    lootsbutton:SetPoint("TOPRIGHT", positionParent, "TOPRIGHT", xOffset, 0)
     lootsbutton.ID = nil
     lootsbutton:SetScript("OnEnter", function(this)
         _G.GameTooltip:SetOwner(this, 'ANCHOR_LEFT')

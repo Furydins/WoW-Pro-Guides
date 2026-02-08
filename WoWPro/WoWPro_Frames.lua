@@ -154,7 +154,22 @@ function WoWPro:PaddingSet()
     end
     WoWPro.GuideFrame:SetPoint("TOPLEFT", WoWPro.StickyFrame, "BOTTOMLEFT" )
     WoWPro.GuideFrame:SetPoint("TOPRIGHT", WoWPro.StickyFrame, "BOTTOMRIGHT" )
-    WoWPro.GuideFrame:SetPoint("BOTTOM", 0, pad)
+    -- Only anchor to bottom when scrolling is enabled to constrain height
+    if WoWProDB.profile.guidescroll then
+        WoWPro.GuideFrame:SetPoint("BOTTOM", 0, pad)
+        local stickyHeight = WoWPro.StickyFrame:IsShown() and WoWPro.StickyFrame:GetHeight() or 0
+        local mainHeight = WoWPro.MainFrame:GetHeight() or 0
+        local guideHeight = math.max(mainHeight - stickyHeight - (pad * 2), 1)
+        WoWPro.GuideFrame:SetHeight(guideHeight)
+    else
+        WoWPro.GuideFrame:ClearAllPoints()
+        WoWPro.GuideFrame:SetPoint("TOPLEFT", WoWPro.StickyFrame, "BOTTOMLEFT" )
+        WoWPro.GuideFrame:SetPoint("TOPRIGHT", WoWPro.StickyFrame, "BOTTOMRIGHT" )
+        local stickyHeight = WoWPro.StickyFrame:IsShown() and WoWPro.StickyFrame:GetHeight() or 0
+        local mainHeight = WoWPro.MainFrame:GetHeight() or 0
+        local guideHeight = math.max(mainHeight - stickyHeight - (pad * 2), 1)
+        WoWPro.GuideFrame:SetHeight(guideHeight)
+    end
 end
 
 function WoWPro:TitlebarShow()
@@ -1591,8 +1606,8 @@ end
 -- Guide Frame --
 function WoWPro:CreateGuideFrame()
     WoWPro.GuideFrame = _G.CreateFrame("Frame", "WoWPro.GuideFrame", WoWPro.MainFrame)
-    WoWPro.GuideFrame:SetClipsChildren(true)
     WoWPro.GuideFrame:EnableMouse(true)
+    WoWPro.GuideFrame:SetClipsChildren(true)
     WoWPro.GuideFrame:SetScript("OnMouseDown", function(this, button)
         if button == "LeftButton" and WoWProDB.profile.drag then
             WoWPro.InhibitAnchorRestore = true
@@ -1696,9 +1711,9 @@ function WoWPro:CreateRows()
         row.track = WoWPro:CreateTrack(row, row.action)
         row.progressBar = WoWPro:CreateProgressBar(row, row.track)
         row.progressBar:Hide()
-        row.itembutton, row.itemicon, row.itemcooldown = WoWPro:CreateItemButton(row, i)
+        row.itembutton, row.itemicon, row.itemcooldown = WoWPro:CreateItemButton(WoWPro.MainFrame, i, row)
 		row.itembuttonSecured = WoWPro:CreateItemButtonSecured(i)
-        row.targetbutton, row.targeticon = WoWPro:CreateTargetButton(row, i)
+        row.targetbutton, row.targeticon = WoWPro:CreateTargetButton(WoWPro.MainFrame, i, row)
 		row.targetbuttonSecured = WoWPro:CreateTargetButtonSecured(i)
 --        row.lootsbutton, row.lootsicon = WoWPro:CreateLootsButton(row, i)
         -- multiple loot buttons
@@ -1707,8 +1722,8 @@ function WoWPro:CreateRows()
             local lootsbutton, lootsicon = WoWPro:CreateLootsButton(row, i, j)
             row.lootsbuttons[j] = {button = lootsbutton, icon = lootsicon}
         end
-        row.jumpbutton, row.jumpicon = WoWPro:CreateJumpButton(row, i)
-		row.eabutton, row.eaicon, row.eacooldown = WoWPro:CreateEAButton(row, i)
+        row.jumpbutton, row.jumpicon = WoWPro:CreateJumpButton(WoWPro.MainFrame, i, row)
+		row.eabutton, row.eaicon, row.eacooldown = WoWPro:CreateEAButton(WoWPro.MainFrame, i, row)
 		row.eabuttonSecured = WoWPro:CreateEAButtonSecured(i)
 
         local highlight = row:CreateTexture()
