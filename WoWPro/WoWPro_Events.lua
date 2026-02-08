@@ -539,6 +539,7 @@ WoWPro.RegisterEventHandler("SPELLS_CHANGED", function(event)
 
 -- Unlocking event processing after things get settled --
 WoWPro.RegisterEventHandler("PLAYER_ENTERING_WORLD", function(event, ...)
+    WoWPro.HasRestoredThisSession = false  -- Reset for each character so position restores on reload
     WoWPro:print("Setting Timer PEW")
     WoWPro.InitLockdown = true
     WoWPro.LockdownCounter = 5  -- times until release and give up to wait for other addons
