@@ -1118,7 +1118,33 @@ function WoWPro:RowUpdate(offset)
     for _, stepIdx in ipairs(allSteps) do
         if stepIdx then
             if WoWPro.sticky[stepIdx] and not completion[stepIdx] then
-                table.insert(stickySteps, stepIdx)
+                -- Only show sticky step if it's ready to be displayed
+                local showSticky = false
+                local action = WoWPro.action[stepIdx]
+                local QID = WoWPro.QID[stepIdx]
+                
+                -- For C steps with QID, only show if quest is in log
+                if action == "C" and QID then
+                    if WoWPro:QIDsInTable(QID, WoWPro.QuestLog) then
+                        showSticky = true
+                    end
+                -- For C steps without QID (loot collection), only show if we've reached that step
+                elseif action == "C" and not QID then
+                    if stepIdx <= k then
+                        showSticky = true
+                    end
+                -- For other sticky types, show if we've reached that step
+                else
+                    if stepIdx <= k then
+                        showSticky = true
+                    end
+                end
+                
+                if showSticky then
+                    table.insert(stickySteps, stepIdx)
+                else
+                    table.insert(regularSteps, stepIdx)
+                end
             else
                 table.insert(regularSteps, stepIdx)
             end
