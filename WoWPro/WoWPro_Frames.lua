@@ -34,10 +34,33 @@ end
 
 function WoWPro.ResetMainFramePosition()
     if _G.InCombatLockdown() then return end
-    local top = WoWPro.Titlebar:GetTop()
-    local left = WoWPro.Titlebar:GetLeft()
+    -- Use the stored expansion anchor to position the frame, respecting the user's chosen growth direction
+    local expansionAnchor = WoWProDB.profile.expansionAnchor or "TOPLEFT"
+    local ui = _G.UIParent
+    local screenW = ui and ui:GetWidth() or 0
+    local screenH = ui and ui:GetHeight() or 0
+    if screenW <= 0 or screenH <= 0 then
+        screenW, screenH = GetUIScreenSize()
+    end
+    local left = WoWPro.MainFrame:GetLeft() or 0
+    local right = WoWPro.MainFrame:GetRight() or screenW
+    local top = WoWPro.MainFrame:GetTop() or screenH
+    local bottom = WoWPro.MainFrame:GetBottom() or 0
+
+    -- Calculate offsets based on expansion anchor
+    local offsetX, offsetY
+    if expansionAnchor == "TOPLEFT" then
+        offsetX, offsetY = left, top - screenH
+    elseif expansionAnchor == "TOPRIGHT" then
+        offsetX, offsetY = right - screenW, top - screenH
+    elseif expansionAnchor == "BOTTOMLEFT" then
+        offsetX, offsetY = left, bottom
+    elseif expansionAnchor == "BOTTOMRIGHT" then
+        offsetX, offsetY = right - screenW, bottom
+    end
+
     WoWPro.MainFrame:ClearAllPoints()
-    WoWPro.MainFrame:SetPoint("TOPLEFT", _G.UIParent, "BOTTOMLEFT", left, top)
+    WoWPro.MainFrame:SetPoint(expansionAnchor, _G.UIParent, expansionAnchor, offsetX, offsetY)
 end
 
 function WoWPro:MinimapSet()
