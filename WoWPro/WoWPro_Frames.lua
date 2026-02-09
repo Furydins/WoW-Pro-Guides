@@ -632,7 +632,15 @@ function WoWPro.RowSizeSet()
                 row:Show()
                 WoWPro.ShownRows = WoWPro.ShownRows + 1
             else
-                for j=i,15 do WoWPro.rows[j]:Hide() end
+                for j=i,15 do
+                    WoWPro.rows[j]:Hide()
+                        if not _G.InCombatLockdown() then
+                            if WoWPro.rows[j].itembutton then WoWPro.rows[j].itembutton:Hide() end
+                            if WoWPro.rows[j].targetbutton then WoWPro.rows[j].targetbutton:Hide() end
+                            if WoWPro.rows[j].jumpbutton then WoWPro.rows[j].jumpbutton:Hide() end
+                            if WoWPro.rows[j].eabutton then WoWPro.rows[j].eabutton:Hide() end
+                        end
+                end
                 break
             end
         -- Hiding the row if the new height makes it too large --
@@ -642,6 +650,12 @@ function WoWPro.RowSizeSet()
                 if i == 1 then i = 2 end
                 for j=i,15 do
                     WoWPro.rows[j]:Hide()
+                        if not _G.InCombatLockdown() then
+                            if WoWPro.rows[j].itembutton then WoWPro.rows[j].itembutton:Hide() end
+                            if WoWPro.rows[j].targetbutton then WoWPro.rows[j].targetbutton:Hide() end
+                            if WoWPro.rows[j].jumpbutton then WoWPro.rows[j].jumpbutton:Hide() end
+                            if WoWPro.rows[j].eabutton then WoWPro.rows[j].eabutton:Hide() end
+                        end
                 end
                 break
             else

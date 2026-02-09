@@ -1179,6 +1179,12 @@ function WoWPro:RowUpdate(offset)
         if not k then
             for j = i, 15 do
                 WoWPro.rows[j]:Hide()
+                if not _G.InCombatLockdown() then
+                    if WoWPro.rows[j].itembutton then WoWPro.rows[j].itembutton:Hide() end
+                    if WoWPro.rows[j].targetbutton then WoWPro.rows[j].targetbutton:Hide() end
+                    if WoWPro.rows[j].jumpbutton then WoWPro.rows[j].jumpbutton:Hide() end
+                    if WoWPro.rows[j].eabutton then WoWPro.rows[j].eabutton:Hide() end
+                end
             end
             break
         end
@@ -1187,6 +1193,12 @@ function WoWPro:RowUpdate(offset)
             WoWPro.RowLimit = math.min(WoWPro.RowLimit or 15, i - 1)
             for j = i, 15 do
                 WoWPro.rows[j]:Hide()
+                if not _G.InCombatLockdown() then
+                    if WoWPro.rows[j].itembutton then WoWPro.rows[j].itembutton:Hide() end
+                    if WoWPro.rows[j].targetbutton then WoWPro.rows[j].targetbutton:Hide() end
+                    if WoWPro.rows[j].jumpbutton then WoWPro.rows[j].jumpbutton:Hide() end
+                    if WoWPro.rows[j].eabutton then WoWPro.rows[j].eabutton:Hide() end
+                end
             end
             break
         end
@@ -1282,6 +1294,8 @@ function WoWPro:RowUpdate(offset)
 			_G.C_ChatInfo.SendAddonMessage("WoWPro", sendsteps , "PARTY")
             return false
         end
+
+        local showButtons = sticky or (i == WoWPro:GetActiveStickyCount() + 1)
 
         -- Getting the image and text for the step --
         currentRow.step:SetText(step)
@@ -1509,165 +1523,170 @@ if step then
     WoWPro.RowDropdownMenu[i] = dropdown
 
         -- Item Button --
-        if action == "H" and not use then use = WoWPro.SelectHearthstone() end
+        if showButtons then
+            if action == "H" and not use then use = WoWPro.SelectHearthstone() end
 
-        if action == "*" and use and WoWPro.C_Item_GetItemInfo then
-            if not _G.InCombatLockdown() then
-                currentRow.itembutton:Show()
-            end
-            currentRow.itemicon:SetTexture(WoWPro.C_Item_GetItemIconByID(use))
-            currentRow.itembutton:SetAttribute("type1", "click1")
-            currentRow.itembutton:SetAttribute("click", "clickbutton")
-            currentRow.itembutton:SetScript("OnClick", function ()
-                WoWPro.TrashItem(use, k)
-                end)
-			if not _G.InCombatLockdown() then
-				if currentRow.itembutton:IsVisible() and currentRow.itembutton:IsShown() then
-					currentRow.itembuttonSecured:Show()
-					currentRow.itembuttonSecured:SetAttribute("type1", "click1")
-					currentRow.itembuttonSecured:SetAttribute("click", "clickbutton")
-					currentRow.itembuttonSecured:SetScript("OnClick", function ()
-						WoWPro.TrashItem(use, k)
-					end)
-					currentRow.itembuttonSecured:ClearAllPoints()
-					currentRow.itembuttonSecured:SetPoint("BOTTOMLEFT", currentRow.itembutton, "BOTTOMLEFT", 0, 0)
-					currentRow.itembuttonSecured:SetFrameLevel(currentRow.itembutton:GetFrameLevel() + 1)
-				end
-			end
-            WoWPro:dbp("RowUpdate: enabled trash: %s", use)
-            if not itemkb and currentRow.itembutton:IsVisible() and not _G.InCombatLockdown() then
-                WoWPro.BindKeysToButton(i)
-                itemkb = true
-            end
-       elseif use and WoWPro.SelectItemToUse(use) then
-            local items = WoWPro.SelectItemToUse(use)
-            local _use = nil
-
-            -- Get the first item from the use tag that we have
-            if items then
-                if use:find("&", 1, true) then
-                    -- & mode: get first item from the original order
-                    local itemList = {("&"):split(use)}
-                    for _, itemID in ipairs(itemList) do
-                        if items[itemID] then
-                            _use = itemID
-                            break
-                        end
-                    end
-                elseif use:find("^", 1, true) then
-                    -- ^ mode: SelectItemToUse already selected the first available
-                    _use = next(items)
-                else
-                    -- Single item
-                    _use = next(items)
-                end
-            end
-
-            if not _use then
-                -- Safety check - this shouldn't happen since we already checked SelectItemToUse above
-                if not _G.InCombatLockdown() then
-                    currentRow.itembutton:Hide()
-                end
-            else
-                currentRow.itemicon.item_IsVisible = nil
-                currentRow.itemcooldown.OnCooldown = nil
-                currentRow.itemcooldown.ActiveItem = nil
+            if action == "*" and use and WoWPro.C_Item_GetItemInfo then
                 if not _G.InCombatLockdown() then
                     currentRow.itembutton:Show()
+                end
+                currentRow.itemicon:SetTexture(WoWPro.C_Item_GetItemIconByID(use))
+                currentRow.itembutton:SetAttribute("type1", "click1")
+                currentRow.itembutton:SetAttribute("click", "clickbutton")
+                currentRow.itembutton:SetScript("OnClick", function ()
+                    WoWPro.TrashItem(use, k)
+                    end)
+                if not _G.InCombatLockdown() then
+                    if currentRow.itembutton:IsVisible() and currentRow.itembutton:IsShown() then
+                        currentRow.itembuttonSecured:Show()
+                        currentRow.itembuttonSecured:SetAttribute("type1", "click1")
+                        currentRow.itembuttonSecured:SetAttribute("click", "clickbutton")
+                        currentRow.itembuttonSecured:SetScript("OnClick", function ()
+                            WoWPro.TrashItem(use, k)
+                        end)
+                        currentRow.itembuttonSecured:ClearAllPoints()
+                        currentRow.itembuttonSecured:SetPoint("BOTTOMLEFT", currentRow.itembutton, "BOTTOMLEFT", 0, 0)
+                        currentRow.itembuttonSecured:SetFrameLevel(currentRow.itembutton:GetFrameLevel() + 1)
+                    end
+                end
+                WoWPro:dbp("RowUpdate: enabled trash: %s", use)
+                if not itemkb and currentRow.itembutton:IsVisible() and not _G.InCombatLockdown() then
+                    WoWPro.BindKeysToButton(i)
+                    itemkb = true
+                end
+           elseif use and WoWPro.SelectItemToUse(use) then
+                local items = WoWPro.SelectItemToUse(use)
+                local _use = nil
 
-                    currentRow.itemicon.currentTexture = nil
-                    currentRow.itembutton:SetAttribute("type1", "item")
-                    currentRow.itembutton:SetAttribute("item1", "item:".._use)
-                    local timeElapsed = 0
-                    currentRow.itembutton:SetScript("OnUpdate", function(_,elapsed)
-                        timeElapsed = timeElapsed + elapsed
-                        if timeElapsed > 0.05 then
-                            timeElapsed = 0
-                            local itemtexture = WoWPro.C_Item_GetItemIconByID(_use)
-                            local start, duration, enabled = _G.WoWPro.GetItemCooldown(_use)
-                            if not start then
-                                WoWPro:dbp("RowUpdate(): U¦%s/%s¦ has bad GetItemCooldown()", use, _use)
-                            end
-                            if _G.WoWPro.C_Item_GetItemCount(_use) > 0 and not currentRow.itemicon.item_IsVisible then
-                                currentRow.itemicon.item_IsVisible = true
-                                currentRow.itemicon:SetTexture(itemtexture)
-                                currentRow.itemicon.currentTexture = itemtexture
-                            elseif itemtexture ~= currentRow.itemicon.currentTexture and _G.WoWPro.C_Item_GetItemCount(_use) > 0 and currentRow.itemicon.item_IsVisible then
-                                currentRow.itemicon:SetTexture(itemtexture)
-                                currentRow.itemicon.currentTexture = itemtexture
-                            elseif _G.WoWPro.C_Item_GetItemCount(_use) == 0 and  currentRow.itemicon.item_IsVisible then
-                                currentRow.itemicon.item_IsVisible = false
-                                currentRow.itemicon:SetTexture()
-                                currentRow.itemicon.currentTexture = nil
-                            end
-                            if enabled and duration > 0 and not currentRow.itemcooldown.OnCooldown then
-                                currentRow.itemcooldown:Show()
-                                currentRow.itemcooldown:SetCooldown(start, duration)
-                                currentRow.itemcooldown.OnCooldown = true
-                                currentRow.itemcooldown.ActiveItem = _use
-                            elseif currentRow.itemcooldown.OnCooldown and duration == 0 then
-                                currentRow.itemcooldown:Hide()
-                                currentRow.itemcooldown.OnCooldown = false
-                            elseif currentRow.itemcooldown.ActiveItem ~= _use and start then
-                                currentRow.itemcooldown.OnCooldown = false
-                                currentRow.itemcooldown:SetCooldown(start, duration)
-                                currentRow.itemcooldown.ActiveItem = _use
+                -- Get the first item from the use tag that we have
+                if items then
+                    if use:find("&", 1, true) then
+                        -- & mode: get first item from the original order
+                        local itemList = {("&"):split(use)}
+                        for _, itemID in ipairs(itemList) do
+                            if items[itemID] then
+                                _use = itemID
+                                break
                             end
                         end
-                    end)
+                    elseif use:find("^", 1, true) then
+                        -- ^ mode: SelectItemToUse already selected the first available
+                        _use = next(items)
+                    else
+                        -- Single item
+                        _use = next(items)
+                    end
+                end
+
+                if not _use then
+                    -- Safety check - this shouldn't happen since we already checked SelectItemToUse above
+                    if not _G.InCombatLockdown() then
+                        currentRow.itembutton:Hide()
+                    end
+                else
+                    currentRow.itemicon.item_IsVisible = nil
+                    currentRow.itemcooldown.OnCooldown = nil
+                    currentRow.itemcooldown.ActiveItem = nil
+                    if not _G.InCombatLockdown() then
+                        currentRow.itembutton:Show()
+
+                        currentRow.itemicon.currentTexture = nil
+                        currentRow.itembutton:SetAttribute("type1", "item")
+                        currentRow.itembutton:SetAttribute("item1", "item:".._use)
+                        local timeElapsed = 0
+                        currentRow.itembutton:SetScript("OnUpdate", function(_,elapsed)
+                            timeElapsed = timeElapsed + elapsed
+                            if timeElapsed > 0.05 then
+                                timeElapsed = 0
+                                local itemtexture = WoWPro.C_Item_GetItemIconByID(_use)
+                                local start, duration, enabled = _G.WoWPro.GetItemCooldown(_use)
+                                if not start then
+                                    WoWPro:dbp("RowUpdate(): U¦%s/%s¦ has bad GetItemCooldown()", use, _use)
+                                end
+                                if _G.WoWPro.C_Item_GetItemCount(_use) > 0 and not currentRow.itemicon.item_IsVisible then
+                                    currentRow.itemicon.item_IsVisible = true
+                                    currentRow.itemicon:SetTexture(itemtexture)
+                                    currentRow.itemicon.currentTexture = itemtexture
+                                elseif itemtexture ~= currentRow.itemicon.currentTexture and _G.WoWPro.C_Item_GetItemCount(_use) > 0 and currentRow.itemicon.item_IsVisible then
+                                    currentRow.itemicon:SetTexture(itemtexture)
+                                    currentRow.itemicon.currentTexture = itemtexture
+                                elseif _G.WoWPro.C_Item_GetItemCount(_use) == 0 and  currentRow.itemicon.item_IsVisible then
+                                    currentRow.itemicon.item_IsVisible = false
+                                    currentRow.itemicon:SetTexture()
+                                    currentRow.itemicon.currentTexture = nil
+                                end
+                                if enabled and duration > 0 and not currentRow.itemcooldown.OnCooldown then
+                                    currentRow.itemcooldown:Show()
+                                    currentRow.itemcooldown:SetCooldown(start, duration)
+                                    currentRow.itemcooldown.OnCooldown = true
+                                    currentRow.itemcooldown.ActiveItem = _use
+                                elseif currentRow.itemcooldown.OnCooldown and duration == 0 then
+                                    currentRow.itemcooldown:Hide()
+                                    currentRow.itemcooldown.OnCooldown = false
+                                elseif currentRow.itemcooldown.ActiveItem ~= _use and start then
+                                    currentRow.itemcooldown.OnCooldown = false
+                                    currentRow.itemcooldown:SetCooldown(start, duration)
+                                    currentRow.itemcooldown.ActiveItem = _use
+                                end
+                            end
+                        end)
+                    end
+                end
+
+                if not _G.InCombatLockdown() then
+                    if currentRow.itembutton:IsVisible() and currentRow.itembutton:IsShown() then
+                        currentRow.itembuttonSecured:Show()
+                        currentRow.itembuttonSecured:SetAttribute("type1", "item")
+                        currentRow.itembuttonSecured:SetAttribute("item1", "item:".._use)
+                        currentRow.itembuttonSecured:ClearAllPoints()
+                        currentRow.itembuttonSecured:SetPoint("BOTTOMLEFT", currentRow.itembutton, "BOTTOMLEFT", 0, 0)
+                        currentRow.itembuttonSecured:SetFrameLevel(currentRow.itembutton:GetFrameLevel() + 1)
+                    end
+                end
+
+                WoWPro:dbp("RowUpdate: enabled use: %s", use)
+                if not itemkb and currentRow.itembutton:IsVisible() and not _G.InCombatLockdown() then
+                    WoWPro.BindKeysToButton(i)
+                    itemkb = true
+                end
+            elseif WoWPro.switch[k] and WoWPro.switch[k] > 0 then
+                if not _G.InCombatLockdown() then
+                    currentRow.itembutton:Show()
+                end
+                currentRow.itemicon:SetTexture(WoWPro.PetIcon(WoWPro.switch[k]))
+                currentRow.itembutton:SetAttribute("type", "SwitchPet")
+                local switch = WoWPro.switch[k]
+                local kk = k
+                currentRow.itembutton.SwitchPet = function ()
+                    _G.C_PetBattles.ChangePet(switch)
+                    WoWPro.CompleteStep(kk, "Clicked pet switch")
+                end
+
+                if not _G.InCombatLockdown() then
+                    if currentRow.itembutton:IsVisible() and currentRow.itembutton:IsShown() then
+                        currentRow.itembuttonSecured:Show()
+                        currentRow.itembuttonSecured:SetAttribute("type", "SwitchPet")
+                        currentRow.itembuttonSecured.SwitchPet = function ()
+                        _G.C_PetBattles.ChangePet(switch)
+                            WoWPro.CompleteStep(kk, "Clicked pet switch")
+                        end
+                        currentRow.itembuttonSecured:ClearAllPoints()
+                        currentRow.itembuttonSecured:SetPoint("BOTTOMLEFT", currentRow.itembutton, "BOTTOMLEFT", 0, 0)
+                        currentRow.itembuttonSecured:SetFrameLevel(currentRow.itembutton:GetFrameLevel() + 1)
+                    end
+                end
+            else
+                if not _G.InCombatLockdown() then
+                    currentRow.itembutton:Hide()
+                    currentRow.itembuttonSecured:Hide()
                 end
             end
-
-			if not _G.InCombatLockdown() then
-				if currentRow.itembutton:IsVisible() and currentRow.itembutton:IsShown() then
-					currentRow.itembuttonSecured:Show()
-					currentRow.itembuttonSecured:SetAttribute("type1", "item")
-					currentRow.itembuttonSecured:SetAttribute("item1", "item:".._use)
-					currentRow.itembuttonSecured:ClearAllPoints()
-					currentRow.itembuttonSecured:SetPoint("BOTTOMLEFT", currentRow.itembutton, "BOTTOMLEFT", 0, 0)
-					currentRow.itembuttonSecured:SetFrameLevel(currentRow.itembutton:GetFrameLevel() + 1)
-				end
-			end
-
-            WoWPro:dbp("RowUpdate: enabled use: %s", use)
-            if not itemkb and currentRow.itembutton:IsVisible() and not _G.InCombatLockdown() then
-                WoWPro.BindKeysToButton(i)
-                itemkb = true
-            end
-        elseif WoWPro.switch[k] and WoWPro.switch[k] > 0 then
-            if not _G.InCombatLockdown() then
-                currentRow.itembutton:Show()
-            end
-            currentRow.itemicon:SetTexture(WoWPro.PetIcon(WoWPro.switch[k]))
-            currentRow.itembutton:SetAttribute("type", "SwitchPet")
-            local switch = WoWPro.switch[k]
-            local kk = k
-            currentRow.itembutton.SwitchPet = function ()
-                _G.C_PetBattles.ChangePet(switch)
-                WoWPro.CompleteStep(kk, "Clicked pet switch")
-            end
-
-			if not _G.InCombatLockdown() then
-				if currentRow.itembutton:IsVisible() and currentRow.itembutton:IsShown() then
-					currentRow.itembuttonSecured:Show()
-					currentRow.itembuttonSecured:SetAttribute("type", "SwitchPet")
-					currentRow.itembuttonSecured.SwitchPet = function ()
-					_G.C_PetBattles.ChangePet(switch)
-						WoWPro.CompleteStep(kk, "Clicked pet switch")
-					end
-					currentRow.itembuttonSecured:ClearAllPoints()
-					currentRow.itembuttonSecured:SetPoint("BOTTOMLEFT", currentRow.itembutton, "BOTTOMLEFT", 0, 0)
-					currentRow.itembuttonSecured:SetFrameLevel(currentRow.itembutton:GetFrameLevel() + 1)
-				end
-			end
         else
-			if not _G.InCombatLockdown() then
-				currentRow.itembutton:Hide()
-			end
-			if not _G.InCombatLockdown() then
-				currentRow.itembuttonSecured:Hide()
-			end
-		end
+            if not _G.InCombatLockdown() then
+                currentRow.itembutton:Hide()
+                currentRow.itembuttonSecured:Hide()
+            end
+        end
 
         -- Loots Buttons --
         if item then
@@ -1721,8 +1740,8 @@ if step then
             end
         end
 
-		--Guide Jump Button
-		if WoWPro.jump[k] then
+        --Guide Jump Button
+        if showButtons and WoWPro.jump[k] then
 			local newguide, ctID = (";"):split(WoWPro.jump[k])
 			if not _G.InCombatLockdown() then
 				currentRow.jumpbutton:Show()
@@ -1751,7 +1770,7 @@ if step then
         end
 
         -- EA Button --
-        if eab then
+        if showButtons and eab then
             local mtext = "/click ExtraActionButton1"
             if not _G.InCombatLockdown() then
                 currentRow.eabutton:Show()
@@ -1817,7 +1836,7 @@ if step then
 
 
         -- Target Button --
-        if target and not _G.InCombatLockdown() then
+        if showButtons and target and not _G.InCombatLockdown() then
             local mtext
             local tar, emote = (","):split(target)
             currentRow.targetbutton:Show()

@@ -323,7 +323,8 @@ local function createDisplayConfig()
                 min = 1, max = 15, step = 1,
                 get = function(info) return WoWProDB.profile.numsteps end,
                 set = function(info,val) WoWProDB.profile.numsteps = val
-                    WoWPro.RowSizeSet() end,
+                    WoWPro.RowSizeSet()
+                    WoWPro:UpdateGuide("Config:numsteps") end,
                 width = "double"
             },
             minresizeh = {
