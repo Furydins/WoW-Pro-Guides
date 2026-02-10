@@ -182,7 +182,7 @@ function WoWPro:PaddingSet()
         WoWPro.GuideFrame:SetPoint("BOTTOM", 0, pad)
         local stickyHeight = WoWPro.StickyFrame:IsShown() and WoWPro.StickyFrame:GetHeight() or 0
         local mainHeight = WoWPro.MainFrame:GetHeight() or 0
-        local guideHeight = math.max(mainHeight - stickyHeight - (pad * 2), 1)
+        local guideHeight = math.max(mainHeight - stickyHeight - (pad * 2), 25)
         WoWPro.GuideFrame:SetHeight(guideHeight)
     else
         WoWPro.GuideFrame:ClearAllPoints()
@@ -190,7 +190,7 @@ function WoWPro:PaddingSet()
         WoWPro.GuideFrame:SetPoint("TOPRIGHT", WoWPro.StickyFrame, "BOTTOMRIGHT" )
         local stickyHeight = WoWPro.StickyFrame:IsShown() and WoWPro.StickyFrame:GetHeight() or 0
         local mainHeight = WoWPro.MainFrame:GetHeight() or 0
-        local guideHeight = math.max(mainHeight - stickyHeight - (pad * 2), 1)
+        local guideHeight = math.max(mainHeight - stickyHeight - (pad * 2), 25)
         WoWPro.GuideFrame:SetHeight(guideHeight)
     end
 end
@@ -643,8 +643,24 @@ function WoWPro.RowSizeSet()
         end
 
         newh = noteh + trackh + max(row.step:GetHeight(),row.action:GetHeight()) + space*2 +3
-        if  row.progressBar:IsVisible() then
+        if row.progressBar:IsVisible() then
             newh = newh + 20
+        end
+        local buttonHeight = 0
+        if row.itembutton and row.itembutton:IsShown() then
+            buttonHeight = max(buttonHeight, row.itembutton:GetHeight() + 7)
+        end
+        if row.targetbutton and row.targetbutton:IsShown() then
+            buttonHeight = max(buttonHeight, row.targetbutton:GetHeight() + 7)
+        end
+        if row.jumpbutton and row.jumpbutton:IsShown() then
+            buttonHeight = max(buttonHeight, row.jumpbutton:GetHeight() + 7)
+        end
+        if row.eabutton and row.eabutton:IsShown() then
+            buttonHeight = max(buttonHeight, row.eabutton:GetHeight() + 7)
+        end
+        if buttonHeight > 0 then
+            newh = max(newh, buttonHeight)
         end
         row:SetHeight(newh)
 
@@ -670,7 +686,6 @@ function WoWPro.RowSizeSet()
         else
             totalh = totalh + newh
             if totalh > maxh then
-                if i == 1 then i = 2 end
                 for j=i,15 do
                     WoWPro.rows[j]:Hide()
                         if not _G.InCombatLockdown() then
@@ -790,6 +805,56 @@ function WoWPro.RowSizeSet()
 
     if WoWPro.Recorder then WoWPro.Recorder:CustomizeFrames() end
     WoWPro.InhibitAnchorStore = wasInhibit
+end
+
+function WoWPro:ContractGuideToRows()
+    if _G.InCombatLockdown() or WoWProDB.profile.autoresize then return end
+    if not WoWPro.MainFrame or not WoWPro.rows then return end
+    local pad = WoWProDB.profile.pad or 0
+    local titleheight = (WoWPro.Titlebar and WoWPro.Titlebar:IsShown()) and WoWPro.Titlebar:GetHeight() or 0
+    local stickyHeight = (WoWPro.StickyFrame and WoWPro.StickyFrame:IsShown()) and WoWPro.StickyFrame:GetHeight() or 0
+    local rowsHeight = 0
+    for _, row in ipairs(WoWPro.rows) do
+        if row:IsShown() then
+            rowsHeight = rowsHeight + row:GetHeight()
+        end
+    end
+    local desiredHeight = rowsHeight + (pad * 2) + stickyHeight + titleheight
+    local currentHeight = WoWPro.MainFrame:GetHeight() or 0
+    if desiredHeight > 0 and desiredHeight < currentHeight then
+        local expansionAnchor = WoWProDB.profile.expansionAnchor or "TOPLEFT"
+        local screenW, screenH = GetUIScreenSize()
+        local left = WoWPro.MainFrame:GetLeft() or 0
+        local right = WoWPro.MainFrame:GetRight() or screenW
+        local top = WoWPro.MainFrame:GetTop() or screenH
+        local bottom = WoWPro.MainFrame:GetBottom() or 0
+
+        local offsetX, offsetY
+        if expansionAnchor == "TOPLEFT" then
+            offsetX, offsetY = left, top - screenH
+        elseif expansionAnchor == "TOPRIGHT" then
+            offsetX, offsetY = right - screenW, top - screenH
+        elseif expansionAnchor == "BOTTOMLEFT" then
+            offsetX, offsetY = left, bottom
+        elseif expansionAnchor == "BOTTOMRIGHT" then
+            offsetX, offsetY = right - screenW, bottom
+        end
+
+        WoWPro.MainFrame:ClearAllPoints()
+        WoWPro.MainFrame:SetPoint(expansionAnchor, _G.UIParent, expansionAnchor, offsetX, offsetY)
+
+        local wasClampedToScreen = WoWPro.MainFrame:IsClampedToScreen()
+        WoWPro.MainFrame:SetClampedToScreen(false)
+        WoWPro.MainFrame:SetHeight(desiredHeight)
+        WoWPro.MainFrame:SetClampedToScreen(wasClampedToScreen)
+
+        if expansionAnchor == "BOTTOMLEFT" or expansionAnchor == "BOTTOMRIGHT" then
+            local ptAnchor, relTo, relPt, x, y = WoWPro.MainFrame:GetPoint(1)
+            if ptAnchor then
+                WoWPro.MainFrame:SetPoint(ptAnchor, relTo, relPt, x, y)
+            end
+        end
+    end
 end
 
 function WoWPro.SetMouseNotesPoints()
@@ -1156,6 +1221,7 @@ function WoWPro:CreateResizeButton()
             WoWPro.MainFrame:StartSizing(corner)
             WoWPro:UpdateGuide("ResizeStart")
             WoWPro.MainFrame:SetScript("OnSizeChanged", function()
+                WoWPro.PaddingSet()
                 WoWPro.RowSizeSet()
             end)
         end)
@@ -1168,6 +1234,9 @@ function WoWPro:CreateResizeButton()
             WoWPro.InhibitAnchorStore = false
 
             WoWPro.MainFrame:SetScript("OnSizeChanged", nil)
+            WoWPro.PaddingSet()
+            WoWPro.RowSizeSet()
+            WoWPro:ContractGuideToRows()
             WoWPro.AnchorStore("ResizeEnd")
         end)
     WoWPro.resizebutton = resizebutton
@@ -1242,6 +1311,7 @@ function WoWPro:CreateCornerHandles()
             WoWPro.MainFrame:StartSizing(point)
             WoWPro:UpdateGuide("ResizeStart")
             WoWPro.MainFrame:SetScript("OnSizeChanged", function()
+                WoWPro.PaddingSet()
                 WoWPro.RowSizeSet()
             end)
         end)
@@ -1254,6 +1324,9 @@ function WoWPro:CreateCornerHandles()
             WoWPro.InhibitAnchorStore = false
 
             WoWPro.MainFrame:SetScript("OnSizeChanged", nil)
+            WoWPro.PaddingSet()
+            WoWPro.RowSizeSet()
+            WoWPro:ContractGuideToRows()
             WoWPro.AnchorStore("ResizeEnd")
         end)
         return btn

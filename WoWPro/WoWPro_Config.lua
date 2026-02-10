@@ -299,7 +299,7 @@ local function createDisplayConfig()
                     if not val then
                         WoWPro.AnchorStore("ResizeLocked")
                     end
-                    WoWPro.ResizeSet() end
+                    WoWPro.ResizeSet(); WoWPro.RowSizeSet() end
             },
             autoresize = {
                 order = 33,
