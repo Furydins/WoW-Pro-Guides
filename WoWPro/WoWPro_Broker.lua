@@ -1137,9 +1137,34 @@ function WoWPro:RowUpdate(offset)
                 local showSticky = false
                 local action = WoWPro.action[stepIdx]
                 local QID = WoWPro.QID[stepIdx]
+                local questtext = WoWPro.questtext and WoWPro.questtext[stepIdx]
+                local available = WoWPro.available and WoWPro.available[stepIdx]
+                local activeReq = WoWPro.active and WoWPro.active[stepIdx]
 
-                -- For C steps with QID, only show if quest is in log
-                if action == "C" and QID then
+                -- Respect AVAILABLE/ACTIVE tags for sticky visibility (filters, not triggers)
+                if available and not WoWPro.QuestAvailable(available, false, "AVAILABLE") then
+                    showSticky = false
+                elseif activeReq and not WoWPro:QIDsInTableLogical(activeReq, WoWPro.QuestLog) then
+                    showSticky = false
+                -- For C steps with QID and QO, check if specific objective is incomplete
+                elseif action == "C" and QID and questtext then
+                    if WoWPro:QIDsInTable(QID, WoWPro.QuestLog) then
+                        local qid = WoWPro:QIDInTable(QID, WoWPro.QuestLog)
+                        -- Check all QO objectives; sticky shows only if any is incomplete
+                        local anyIncomplete = false
+                        for l, lquesttext in ipairs({(";"):split(questtext)}) do
+                            if WoWPro.ValidObjective(lquesttext) then
+                                local complete = WoWPro.QuestObjectiveStatus(qid, lquesttext)
+                                if not complete then
+                                    anyIncomplete = true
+                                    break
+                                end
+                            end
+                        end
+                        showSticky = anyIncomplete
+                    end
+                -- For C steps with QID (no QO), only show if quest is in log
+                elseif action == "C" and QID then
                     if WoWPro:QIDsInTable(QID, WoWPro.QuestLog) then
                         showSticky = true
                     end
@@ -1157,8 +1182,6 @@ function WoWPro:RowUpdate(offset)
 
                 if showSticky then
                     table.insert(stickySteps, stepIdx)
-                else
-                    table.insert(regularSteps, stepIdx)
                 end
             else
                 table.insert(regularSteps, stepIdx)
