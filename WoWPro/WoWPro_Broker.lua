@@ -1120,16 +1120,21 @@ function WoWPro:RowUpdate(offset)
             table.insert(allSteps, tempK)
             tempK = tempK + 1
         else
+            if WoWPro.sticky[tempK] then
+                WoWPro.IncrementActiveStickyCount()
+            end
             tempK = WoWPro.NextStep(tempK, i)
             table.insert(allSteps, tempK)
             tempK = tempK + 1
         end
     end
+     WoWPro.SetActiveStickyCount(0)
 
     -- Now sort: stickies first, then regular
     local completion = WoWProCharDB.Guide[GID].completion
     local stickySteps = {}
     local regularSteps = {}
+    local seenRegularStep = false
     for _, stepIdx in ipairs(allSteps) do
         if stepIdx then
             if WoWPro.sticky[stepIdx] and not completion[stepIdx] then
@@ -1180,11 +1185,12 @@ function WoWPro:RowUpdate(offset)
                     end
                 end
 
-                if showSticky then
+                if showSticky and not seenRegularStep then
                     table.insert(stickySteps, stepIdx)
                 end
             else
                 table.insert(regularSteps, stepIdx)
+                seenRegularStep = true
             end
         end
     end
