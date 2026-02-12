@@ -1200,10 +1200,9 @@ function WoWPro:RowUpdate(offset)
     for _, v in ipairs(stickySteps) do table.insert(stepList, v) end
     for _, v in ipairs(regularSteps) do table.insert(stepList, v) end
     WoWPro.RowLimit = #stepList
-    
+
     -- Set ActiveStickyCount based on actual visible stickies
     WoWPro.SetActiveStickyCount(#stickySteps)
-
     for i = 1, 15 do
         -- WoWPro:dbp("WoWPro:RowUpdate(i=%d)", i)
         -- Use sorted step list with stickies first --
