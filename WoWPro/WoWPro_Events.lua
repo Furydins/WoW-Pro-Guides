@@ -246,7 +246,7 @@ end
 -- Auto-Complete: Loot based --
 function WoWPro.AutoCompleteLoot()
     if not WoWPro.GuideLoaded then return end
-    for i = 1, 1 + WoWPro.ActiveStickyCount do
+    for i = 1, 1 + WoWPro:GetActiveStickyCount() do
         local index = WoWPro.rows[i].index
         local lootItems = WoWPro.lootitem[index]
         if lootItems then
@@ -426,8 +426,7 @@ end
 
 -- Auto-Complete: Zone based --
 function WoWPro.AutoCompleteZone()
-    WoWPro.ActiveStickyCount = WoWPro.ActiveStickyCount or 0
-    local currentindex = WoWPro.rows[1+WoWPro.ActiveStickyCount].index
+    local currentindex = WoWPro.rows[1+WoWPro:GetActiveStickyCount()].index
     local action = WoWPro.action[currentindex] or "?"
     local step = WoWPro.step[currentindex] or "?"
     local targetzone = WoWPro.targetzone[currentindex] or "!"
@@ -457,7 +456,7 @@ end
 function WoWPro.AutoCompleteCriteria()
     if not WoWProDB.char.currentguide then return end
 
-    local qidx = WoWPro.rows[WoWPro.ActiveStickyCount+1].index
+    local qidx = WoWPro.rows[WoWPro:GetActiveStickyCount()+1].index
     if WoWPro.QID[qidx] and WoWPro:IsQuestFlaggedCompleted(WoWPro.QID[qidx],true) then
         WoWPro.CompleteStep(qidx,"AutoCompleteCriteria-Quest")
     else
@@ -471,7 +470,7 @@ function WoWPro.AutoCompleteChest()
 
     local zone = WoWPro.GetZoneText()
     if zone == "Timeless Isle" then
-        local qidx = WoWPro.rows[WoWPro.ActiveStickyCount+1].index
+        local qidx = WoWPro.rows[WoWPro:GetActiveStickyCount()+1].index
         if WoWPro.QID[qidx] and WoWPro:IsQuestFlaggedCompleted(WoWPro.QID[qidx],true) then
             WoWPro.CompleteStep(qidx,"AutoCompleteChest")
         end
@@ -540,6 +539,7 @@ WoWPro.RegisterEventHandler("SPELLS_CHANGED", function(event)
 
 -- Unlocking event processing after things get settled --
 WoWPro.RegisterEventHandler("PLAYER_ENTERING_WORLD", function(event, ...)
+    WoWPro.HasRestoredThisSession = false  -- Reset for each character so position restores on reload
     WoWPro:print("Setting Timer PEW")
     WoWPro.InitLockdown = true
     WoWPro.LockdownCounter = 5  -- times until release and give up to wait for other addons
@@ -615,7 +615,7 @@ WoWPro.RegisterModernEventHandler("PET_BATTLE_PET_ROUND_RESULTS", function(event
     end)
 
 WoWPro.RegisterModernEventHandler("PET_BATTLE_PET_CHANGED", function(event,team)
-    local qidx = WoWPro.rows[WoWPro.ActiveStickyCount+1].index
+    local qidx = WoWPro.rows[WoWPro:GetActiveStickyCount()+1].index
     if team == 1 and WoWPro.switch and WoWPro.switch[qidx] == 0 then
         -- Waiting for forced swap.
         WoWPro.CompleteStep(qidx,"Forced Swap")
@@ -624,7 +624,7 @@ WoWPro.RegisterModernEventHandler("PET_BATTLE_PET_CHANGED", function(event,team)
 
 
 WoWPro.RegisterModernEventHandler("PET_BATTLE_FINAL_ROUND", function(event, ...)
-    local qidx = WoWPro.rows[WoWPro.ActiveStickyCount+1].index
+    local qidx = WoWPro.rows[WoWPro:GetActiveStickyCount()+1].index
     local winner = ...
     WoWPro.ProcessFinalRound(winner, qidx)
     end)
@@ -801,7 +801,7 @@ function WoWPro.GOSSIP_SHOW_PUNTED(event, ...)
     WoWPro.GossipText = WoWPro.GossipInfo_GetText():upper()
     WoWPro:print("GetGossipText: %s", WoWPro.GossipText)
 
-    local qidx = WoWPro.rows[WoWPro.ActiveStickyCount+1].index
+    local qidx = WoWPro.rows[WoWPro:GetActiveStickyCount()+1].index
     local myNPC = WoWPro:TargetNpcId()
 
     if not qidx then
@@ -890,7 +890,7 @@ function WoWPro.QUEST_GREETING_PUNTED(event, ...)
     local numAvailableQuests = _G.GetNumAvailableQuests()
     local numActiveQuests = _G.GetNumActiveQuests()
     WoWPro:print("%s: numActiveQuests=%d, numAvailableQuests=%d", event, numActiveQuests, numAvailableQuests)
-    local qidx = WoWPro.rows[WoWPro.ActiveStickyCount+1].index
+    local qidx = WoWPro.rows[WoWPro:GetActiveStickyCount()+1].index
     local myNPC = WoWPro:TargetNpcId()
 
     if not qidx then
@@ -953,7 +953,7 @@ function WoWPro.QUEST_DETAIL_PUNTED(event, ...)
     local myNPC = WoWPro:TargetNpcId()
 
     if not qidx then
-        qidx = WoWPro.rows[WoWPro.ActiveStickyCount+1].index
+        qidx = WoWPro.rows[WoWPro:GetActiveStickyCount()+1].index
         if not qidx then
             WoWPro:print("%s: No active step.", event)
             return
@@ -1002,7 +1002,7 @@ WoWPro.RegisterEventHandler("QUEST_PROGRESS", function(event, ...)
 function WoWPro.QUEST_PROGRESS_PUNTED(event, ...)
     if not WoWProCharDB.AutoTurnin then return; end
 
-    local qidx = WoWPro.rows[WoWPro.ActiveStickyCount+1].index
+    local qidx = WoWPro.rows[WoWPro:GetActiveStickyCount()+1].index
     local questtitle = _G.GetTitleText();
     WoWPro:dbp("Quest is [%s], matching [%s]",tostring(questtitle),tostring(WoWPro.step[qidx]))
     if WoWPro.action[qidx] == "T" and questtitle == WoWPro.step[qidx] then
@@ -1012,7 +1012,7 @@ end
 
 -- Noting that a quest is being completed for AutoTurnin --
 WoWPro.RegisterEventHandler("QUEST_COMPLETE", function(event, ...)
-    local qidx = WoWPro.rows[WoWPro.ActiveStickyCount+1].index
+    local qidx = WoWPro.rows[WoWPro:GetActiveStickyCount()+1].index
     local questtitle = _G.GetTitleText();
     WoWPro:dbp("Quest is [%s], matching %s[%s]",tostring(questtitle),tostring(WoWPro.action[qidx]), tostring(WoWPro.step[qidx]))
     if WoWProCharDB.AutoTurnin == true and
@@ -1036,7 +1036,7 @@ WoWPro.RegisterEventHandler("QUEST_TURNED_IN", function(event, ...)
     local qid, exp, money = ...
     WoWPro:dbp("%s(qid=%d,exp=%d,money=%d)",event,qid, exp, money)
     WoWPro.CompletingQuest = true
-    local qidx = WoWPro.rows[WoWPro.ActiveStickyCount+1].index
+    local qidx = WoWPro.rows[WoWPro:GetActiveStickyCount()+1].index
     if WoWPro.action[qidx] == "T" and not WoWPro.nocache[qidx] then
         WoWProCharDB.completedQIDs[qid] = true
     end
@@ -1046,7 +1046,7 @@ end)
 WoWPro.RegisterEventHandler("QUEST_ACCEPTED", function(event, ...)
     local qlidx, qid = ...
     WoWPro:dbp("%s(qidx=%d,qid=%d)",event,qlidx,qid)
-    local qidx = WoWPro.rows[WoWPro.ActiveStickyCount+1].index
+    local qidx = WoWPro.rows[WoWPro:GetActiveStickyCount()+1].index
     local questtitle = _G.GetTitleText();
     if WoWProCharDB.AutoTurnin == true and
        WoWPro.action[qidx] == "A" and
@@ -1068,7 +1068,7 @@ end)
 -- Auto-Completion --
 WoWPro.RegisterEventHandler("TAXIMAP_OPENED", function(event, ...)
     WoWPro:RecordTaxiLocations(...)
-    local qidx = WoWPro.rows[WoWPro.ActiveStickyCount+1].index
+    local qidx = WoWPro.rows[WoWPro:GetActiveStickyCount()+1].index
     if (WoWPro.action[qidx] == "F" or WoWPro.action[qidx] == "b") then
         if WoWProCharDB.AutoSelect == true then
             WoWPro.TakeTaxi(WoWPro.step[qidx])
@@ -1086,7 +1086,7 @@ WoWPro.RegisterEventHandler("PLAYER_CONTROL_LOST", function(event, ...)
 end)
 
 function WoWPro.PLAYER_CONTROL_LOST_PUNTED(event, ...)
-    local qidx = WoWPro.rows[WoWPro.ActiveStickyCount+1].index
+    local qidx = WoWPro.rows[WoWPro:GetActiveStickyCount()+1].index
     if (WoWPro.action[qidx] == "F" or WoWPro.action[qidx] == "b") then
         if _G.UnitOnTaxi("player") then
             WoWPro:dbp("PLAYER_CONTROL_LOST_PUNTED: UnitOnTaxi! calling CompleteStep")

@@ -53,7 +53,7 @@ function WoWPro.Profession:PreRowUpdate(row)
 		local _, proflvls = ("+"):split(proflvl)
         proflvl = tonumber(proflvls) or 1
         profmaxlvl = tonumber(profmaxlvl) or 0
-		if (k == WoWPro.rows[WoWPro.ActiveStickyCount+1].index) then
+		if (k == WoWPro.rows[WoWPro:GetActiveStickyCount()+1].index) then
             local profs = {}
 			if WoWPro.RETAIL then
 				profs[1], profs[2], profs[3], profs[4], profs[5], profs[6] = _G.GetProfessions()

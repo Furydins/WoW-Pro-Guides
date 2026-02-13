@@ -299,7 +299,7 @@ local function createDisplayConfig()
                     if not val then
                         WoWPro.AnchorStore("ResizeLocked")
                     end
-                    WoWPro.ResizeSet() end
+                    WoWPro.ResizeSet(); WoWPro.RowSizeSet() end
             },
             autoresize = {
                 order = 33,
@@ -323,7 +323,8 @@ local function createDisplayConfig()
                 min = 1, max = 15, step = 1,
                 get = function(info) return WoWProDB.profile.numsteps end,
                 set = function(info,val) WoWProDB.profile.numsteps = val
-                    WoWPro.RowSizeSet() end,
+                    WoWPro.RowSizeSet()
+                    WoWPro:UpdateGuide("Config:numsteps") end,
                 width = "double"
             },
             minresizeh = {
